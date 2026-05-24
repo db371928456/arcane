@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#080810" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="玄秘紀元" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="玄秘紀元" />
+  <meta name="msapplication-TileColor" content="#080810" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>" />
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIueOhOenmOe0gOWFgyIsCiAgInNob3J0X25hbWUiOiAi546E56eY57SA5YWDIiwKICAiZGVzY3JpcHRpb24iOiAi56We56eY5o6i6Zqq6IiH6a2U5rOV5L+u54eFIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwODA4MTAiLAogICJ0aGVtZV9jb2xvciI6ICIjMDgwODEwIiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48dGV4dCB5PScuOWVtJyBmb250LXNpemU9JzkwJz7wn5SMPC90ZXh0Pjwvc3ZnPiIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=" />
+  <title>玄秘紀元 · Arcane Chronicles</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{background:#080810;height:100%;overflow:hidden;}
+    body{font-family:'Raleway',sans-serif;color:#e2e8f0;}
+    #root{height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel" data-presets="react">
+const { useState, useRef, useEffect } = React;
+
+// ═══ 數據持久化 ═══
+const STORAGE_KEY = "arcane_chronicles_data";
+
+const defaultData = {
+  points: 0,
+  uploads: [],
+  purchased: [],
+  currentTitle: null,
+  drawings: [],
+  posts: [],
+  todayDrawPts: 0,
+  lastDrawDate: null,
+  lastCheckIn: null,
+  loginCount: 0,
+  joinDate: null,
+  customName: null,
+  isFirstLogin: true,
+};
+
+function loadData(role) {
+  try {
+    const key = STORAGE_KEY + "_" + role;
+    const data = localStorage.getItem(key);
+    if (data) {
+      const parsed = JSON.parse(data);
+      const today = new Date().toDateString();
+      if (parsed.lastDrawDate !== today) {
+        parsed.todayDrawPts = 0;
+        parsed.lastDrawDate = today;
+      }
+      return { ...defaultData, ...parsed };
+    }
+  } catch (e) { console.error(e); }
+  return { ...defaultData, joinDate: new Date().toLocaleDateString('zh-TW'), lastDrawDate: new Date().toDateString(), isFirstLogin: true };
+}
+
+function saveData(role, data) {
+  try {
+    localStorage.setItem(STORAGE_KEY + "_" + role, JSON.stringify(data));
+  } catch (e) { console.error(e); }
+}
+
+// ═══ 常量與星空特效 ═══
+const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  id: i, left: (i * 4.37 + 7) % 100, delay: (i * 0.4) % 8, duration: 6 + (i * 0.37) % 8, size: 2 + (i * 0.23) % 4,
+}));
+const STARS = Array.from({ length: 70 }, (_, i) => ({
+  id: i, left: (i * 1.27) % 100, top: (i * 1.7 + 3) % 100, big: i % 5 === 0,
+  color: i % 3 === 0 ? "#a78bfa" : i % 3 === 1 ? "#22d3ee" : "#fbbf24",
+  duration: 3 + (i % 4), delay: (i * 0.15) % 4,
+}));
+
+// 商店物品
+const SHOP_ITEMS = [
+  { id: 8, name: "金內練術", cost: 100, icon: "⚙️", desc: "修煉金屬元素之力", type: "magic" },
+  { id: 9, name: "木內練術", cost: 100, icon: "🌿", desc: "感應自然生命之力", type: "magic" },
+  { id: 10, name: "水內練術", cost: 100, icon: "💧", desc: "掌控流動變化之力", type: "magic" },
+  { id: 11, name: "雷內練術", cost: 100, icon: "⚡", desc: "駕馭天雷霹靂之力", type: "magic" },
+  { id: 12, name: "白魔法", cost: 100, icon: "🕊️", desc: "淨化治癒守護的光明術法", type: "magic" },
+  { id: 13, name: "黑魔法", cost: 100, icon: "☽", desc: "汲取黑暗力量的禁斷術法", type: "magic" },
+  { id: 16, name: "古老的紗草紙魔法", cost: 150, icon: "📜", desc: "來自埃及與希臘的古老秘術", type: "magic" },
+  { id: 17, name: "自然魔法", cost: 100, icon: "🌳", desc: "連結大地與精靈的魔法", type: "magic" },
+  
+  { id: 18, name: "式神召喚", cost: 1000, icon: "🦊", desc: "陰陽道役使的靈體", type: "summon" },
+  { id: 19, name: "天使召喚", cost: 1000, icon: "👼", desc: "呼喚神聖界域的使者", type: "summon" },
+  { id: 20, name: "惡魔召喚", cost: 1000, icon: "👿", desc: "與深淵存在締結契約", type: "summon" },
+  
+  { id: 14, name: "魔法觀認知", cost: 200, icon: "📜", desc: "基礎魔法圓陣繪製技巧", type: "item" },
+  { id: 26, name: "魔藥學", cost: 250, icon: "🧪", desc: "探索神秘藥劑的調配奧義", type: "item" },
+
+  // 進階稱號
+  { id: 4, name: "黑魔法師", cost: 1000, icon: "🌑", desc: "需使用黑魔法100次", type: "title", req: { type: 'magicUse', target: '黑魔法', count: 100 } },
+  { id: 21, name: "白魔法師", cost: 1000, icon: "🕊️", desc: "需使用白魔法100次", type: "title", req: { type: 'magicUse', target: '白魔法', count: 100 } },
+  { id: 22, name: "盧恩學者", cost: 1000, icon: "ᚱ", desc: "需成功繪製盧恩符文100次", type: "title", req: { type: 'drawUse', target: '盧恩符文', count: 100 } },
+  { id: 23, name: "符籙繪師", cost: 1000, icon: "🧧", desc: "需成功繪製符籙100次", type: "title", req: { type: 'drawUse', target: '符籙', count: 100 } },
+  { id: 24, name: "神代術士", cost: 1000, icon: "👁️‍🗨️", desc: "需成功古老的紗草紙魔法儀式50次", type: "title", req: { type: 'magicUse', target: '古老的紗草紙魔法', count: 50 } },
+  { id: 25, name: "四象術師", cost: 1000, icon: "☯️", desc: "需集齊金木水雷四象內練術", type: "title", req: { type: 'hasItems', items: [8, 9, 10, 11] } },
+];
+
+// 數字轉中文量詞
+const toChineseNum = (num) => {
+  const arr = ['零', '一', '兩', '三', '四', '五', '六', '七', '八', '九', '十'];
+  if (num <= 10) return arr[num];
+  return num;
+};
+
+// 任務區動態驗證：取得真實探尋成就稱號
+function getAutoTitles(data) {
+  const successCount = data.uploads.filter(u => u.type === 'place' && u.verifiedSuccess).length;
+  const autoTitles = [];
+  if (successCount >= 10) autoTitles.push({ id: "auto_1", name: "探靈者", icon: "👁️", desc: "經過驗證後的成功探險達 10 次", type: "title" });
+  if (successCount >= 50) autoTitles.push({ id: "auto_2", name: "尋靈者", icon: "🕯️", desc: "經過驗證後的成功探險達 50 次", type: "title" });
+  if (successCount >= 100) autoTitles.push({ id: "auto_3", name: "靈界行者", icon: "🌀", desc: "經過驗證後的成功探險達 100 次", type: "title" });
+  return autoTitles;
+}
+
+// 占卜計算
+function divineCalc(name, q, seed) {
+  const c = name + "夏娃" + q + seed;
+  let h = 0;
+  for (let i = 0; i < c.length; i++) { h = ((h << 5) - h) + c.charCodeAt(i); h = h & h; }
+  const a = Math.abs(h);
+  const p1 = (a % 40) + 35;
+  const p2 = ((a >> 8) % 35) + 20;
+  return { p1, p2, p3: 100 - p1 - p2 };
+}
+
+function getOutcome(type, num) {
+  const t = {
+    magic: { 1: "靈界強烈回應！術法順利施展。", 2: "效果中等，遭遇輕微阻力。", 3: "施展困難，靈力散亂。" },
+    creature: { 1: "靈體強烈回應！成功拍到神秘生物。", 2: "靈體反應模糊，需加倍警覺。", 3: "此地暫無明顯靈異現象。" },
+    place: { 1: "靈界認可！此處蘊含豐富靈力。", 2: "靈力複雜，需謹慎探索。", 3: "靈界沈默，暫時無法感知。" }
+  };
+  return t[type][num];
+}
+
+// ═══ 主 App ═══
+function App() {
+  const [stage, setStage] = useState("login");
+  const [tab, setTab] = useState("upload");
+  const [u, setU] = useState("");
+  const [p, setP] = useState("");
+  const [notif, setNotif] = useState(null);
+  const [role, setRole] = useState(null);
+  const [data, setData] = useState(defaultData);
+  const [showFirstNameModal, setShowFirstNameModal] = useState(false);
+  const [firstName, setFirstName] = useState("");
+
+  const showNotif = (m) => { setNotif(m); setTimeout(() => setNotif(null), 2500); };
+  
+  const updateData = (updater) => {
+    setData(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (role) saveData(role, next);
+      return next;
+    });
+  };
+
+  const login = () => {
+    if (!u.trim() || !p.trim()) { showNotif("請輸入帳號和密碼"); return; }
+    let newRole = null;
+    if (u === "管理員" && p === "武者") newRole = "admin";
+    else if (u === "@@" && p === "##") newRole = "user";
+    else { showNotif("帳號或密碼錯誤"); return; }
+    
+    setRole(newRole);
+    const loaded = loadData(newRole);
+    loaded.loginCount = (loaded.loginCount || 0) + 1;
+    setData(loaded);
+    saveData(newRole, loaded);
+    
+    // 檢查是否需要首次命名
+    if (!loaded.customName || loaded.isFirstLogin) {
+      setShowFirstNameModal(true);
+    }
+    
+    setStage("main");
+    setU(""); setP("");
+  };
+
+  const handleFirstName = () => {
+    if (!firstName.trim()) { showNotif("請輸入你的術士名號"); return; }
+    if (firstName.trim().length > 12) { showNotif("名號不能超過12字"); return; }
+    updateData(prev => ({ ...prev, customName: firstName.trim(), isFirstLogin: false }));
+    setShowFirstNameModal(false);
+    setFirstName("");
+    showNotif("歡迎加入玄秘紀元，" + firstName.trim() + "！");
+  };
+
+  const logout = () => {
+    setStage("login"); setRole(null); setData(defaultData); setTab("upload"); showNotif("已登出");
+  };
+
+  return (
+    <div style={{ background: "#080810", minHeight: "100vh", overflow: "hidden", position: "relative" }}>
+      <style>{CSS}</style>
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        {STARS.map(s => (
+          <div key={s.id} style={{ position: "absolute", borderRadius: "50%", width: s.big ? "2px" : "1px", height: s.big ? "2px" : "1px", background: s.color, left: `${s.left}%`, top: `${s.top}%`, animation: `starBlink ${s.duration}s ease-in-out infinite`, animationDelay: `${s.delay}s` }} />
+        ))}
+      </div>
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        {PARTICLES.map(p => (
+          <div key={p.id} className="particle" style={{ left: `${p.left}%`, bottom: 0, width: `${p.size}px`, height: `${p.size}px`, animationDuration: `${p.duration}s`, animationDelay: `${p.delay}s` }} />
+        ))}
+      </div>
+      {notif && <div className="notif">{notif}</div>}
+      {stage === "login" && <Login u={u} setU={setU} p={p} setP={setP} onLogin={login} />}
+      {stage === "main" && <Main tab={tab} setTab={setTab} showNotif={showNotif} role={role} data={data} updateData={updateData} onLogout={logout} />}
+      
+      {/* 首次命名彈窗 */}
+      {showFirstNameModal && (
+        <div className="modal-overlay">
+          <div className="modal-box fade-up">
+            <div style={{ fontSize: 50, marginBottom: 12 }}>🔮</div>
+            <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, color: "#a78bfa" }}>歡迎來到玄秘紀元</h3>
+            <p style={{ color: "rgba(226,232,240,.6)", fontSize: 12, marginBottom: 16, lineHeight: 1.6 }}>
+              在開始你的神秘探險之前<br/>請先為自己取一個術士名號
+            </p>
+            <input 
+              type="text" 
+              placeholder="輸入你的術士名號 (最多12字)..." 
+              value={firstName} 
+              onChange={e => setFirstName(e.target.value)} 
+              onKeyDown={e => e.key === "Enter" && handleFirstName()}
+              maxLength={12}
+              style={{ marginBottom: 16 }}
+              autoFocus
+            />
+            <button className="mbtn" onClick={handleFirstName}>確認名號，開始冒險</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══ 登入頁 ═══
+function Login({ u, setU, p, setP, onLogin }) {
+  const [showInstall, setShowInstall] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    
+    // 檢查是否已安裝
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setShowInstall(false);
+    }
+    
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setShowInstall(false);
+      }
+      setDeferredPrompt(null);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative" }}>
+      <div style={{ position: "absolute", width: 360, height: 360, borderRadius: "50%", border: "1px solid rgba(139,92,246,.12)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} className="spin-ring" />
+      <div style={{ width: "100%", maxWidth: 380, position: "relative", zIndex: 10 }} className="fade-up">
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <div style={{ fontSize: 56, marginBottom: 10 }}>🔮</div>
+          <h1 className="grad-text" style={{ fontFamily: "'Cinzel Decorative',serif", fontSize: 24, fontWeight: 900, letterSpacing: 2 }}>玄秘紀元</h1>
+          <p style={{ color: "rgba(167,139,250,.6)", fontFamily: "'Cinzel',serif", fontSize: 10, letterSpacing: 4, marginTop: 6 }}>ARCANE CHRONICLES</p>
+        </div>
+        <div style={{ background: "rgba(8,8,20,.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,.3)", borderRadius: 20, padding: "28px 24px" }}>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>帳號</label>
+            <input type="text" placeholder="輸入帳號..." value={u} onChange={e => setU(e.target.value)} onKeyDown={e => e.key === "Enter" && onLogin()} />
+          </div>
+          <div style={{ marginBottom: 22 }}>
+            <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>密碼</label>
+            <input type="password" placeholder="輸入密碼..." value={p} onChange={e => setP(e.target.value)} onKeyDown={e => e.key === "Enter" && onLogin()} />
+          </div>
+          <button className="mbtn" onClick={onLogin}>登入</button>
+          
+          {showInstall && (
+            <button 
+              className="mbtn" 
+              onClick={handleInstall}
+              style={{ marginTop: 12, background: "rgba(139,92,246,.25)" }}
+            >
+              加入桌面
+            </button>
+          )}
+        </div>
+        
+        {/* iOS 安裝提示 */}
+        {/iPhone|iPad|iPod/.test(navigator.userAgent) && !window.navigator.standalone && (
+          <div style={{ marginTop: 16, padding: 14, background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.25)", borderRadius: 12, textAlign: "center" }}>
+            <p style={{ color: "rgba(226,232,240,.7)", fontSize: 11, lineHeight: 1.6 }}>
+              iOS 用戶：點擊 Safari 分享按鈕<br/>
+              然後選擇「加入主畫面」即可安裝
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══ 主介面 ═══
+function Main({ tab, setTab, showNotif, role, data, updateData, onLogout }) {
+  const tabs = [
+    { id: "upload", label: "上傳", icon: "📸" },
+    { id: "points", label: "點數", icon: "💎" },
+    { id: "shop", label: "商店", icon: "🛍️" },
+    { id: "records", label: "紀錄", icon: "🗺️" },
+    { id: "discuss", label: "討論", icon: "💬" },
+    { id: "draw", label: "繪圖", icon: "✨" },
+    { id: "profile", label: "檔案", icon: "👤" },
+  ];
+
+  const autoTitles = getAutoTitles(data);
+  const allAvailableItems = [...SHOP_ITEMS, ...autoTitles];
+  const currentTitleObj = data.currentTitle ? allAvailableItems.find(s => s.id === data.currentTitle) : null;
+  
+  const getDisplayName = () => {
+    if (data.customName) return data.customName;
+    return role === "admin" ? "管理員" : "見習術士";
+  };
+  
+  return (
+    <div className="fade-up" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto" }}>
+      <div style={{ padding: "14px 16px 12px", background: "rgba(8,8,20,.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(139,92,246,.15)", position: "sticky", top: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <h1 className="grad-text" style={{ fontFamily: "'Cinzel Decorative',serif", fontSize: 15, letterSpacing: 1 }}>玄秘紀元</h1>
+          <p style={{ color: "rgba(167,139,250,.55)", fontSize: 10, fontFamily: "'Cinzel',serif", letterSpacing: 1, marginTop: 2 }}>
+            {currentTitleObj ? `${currentTitleObj.icon} ${currentTitleObj.name}` : (role === "admin" ? "管理員" : "見習術士")}
+          </p>
+        </div>
+        <div style={{ background: "rgba(139,92,246,.13)", border: "1px solid rgba(139,92,246,.3)", borderRadius: 10, padding: "6px 12px", display: "flex", alignItems: "center", gap: 5 }}>
+          <span style={{ fontSize: 13 }}>💎</span>
+          <span style={{ color: "#a78bfa", fontFamily: "'Cinzel',serif", fontWeight: 700, fontSize: 15 }}>{data.points.toLocaleString()}</span>
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px" }}>
+        {tab === "upload"  && <Upload showNotif={showNotif} data={data} updateData={updateData} />}
+        {tab === "points"  && <Points data={data} showNotif={showNotif} updateData={updateData} />}
+        {tab === "shop"    && <Shop showNotif={showNotif} data={data} updateData={updateData} />}
+        {tab === "records" && <Records data={data} showNotif={showNotif} updateData={updateData} />}
+        {tab === "discuss" && <Discuss showNotif={showNotif} data={data} updateData={updateData} role={role} />}
+        {tab === "draw"    && <Draw showNotif={showNotif} data={data} updateData={updateData} />}
+        {tab === "profile" && <Profile role={role} data={data} updateData={updateData} onLogout={onLogout} showNotif={showNotif} />}
+      </div>
+      <div className="tabbar">
+        {tabs.map(t => (
+          <div key={t.id} className={`ntab ${tab === t.id ? "on" : ""}`} onClick={() => setTab(t.id)}>
+            <span>{t.icon}</span>
+            <span>{t.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══ 上傳 Tab ═══
+function Upload({ showNotif, data, updateData }) {
+  const [sel, setSel] = useState(null);
+  const [magicSubType, setMagicSubType] = useState("白魔法");
+  const [preview, setPreview] = useState(null);
+  const [result, setResult] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [note, setNote] = useState("");
+  const galleryRef = useRef(null);
+  const cameraRef = useRef(null);
+
+  const cats = [
+    { id: "magic", icon: "🧙", label: "魔法道法", desc: "施法・符陣", c: "#8b5cf6", r: "139,92,246", pts: 10 },
+    { id: "creature", icon: "🐉", label: "神秘生物", desc: "靈異生物", c: "#10b981", r: "16,185,129", pts: 15 },
+    { id: "place", icon: "🌙", label: "神秘地點", desc: "廟宇・秘境", c: "#3b82f6", r: "59,130,246", pts: 20 },
+  ];
+  
+  const magicTypes = ["白魔法", "黑魔法", "自然魔法", "古老的紗草紙魔法", "一般魔法"];
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreview(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const submit = () => {
+    if (!sel) { showNotif("請先選擇類型"); return; }
+    if (!preview) { showNotif("請先選擇照片"); return; }
+    
+    setUploading(true);
+    const tMap = { magic: magicSubType, creature: "靈體探查", place: "靈地探尋" };
+    const qMap = { magic: "魔法是否成功", creature: "是否拍到生物", place: "是否探到靈地" };
+    
+    setTimeout(() => {
+      const { p1, p2, p3 } = divineCalc("術士", qMap[sel], Date.now().toString());
+      
+      const isVerifiedSuccess = sel === "place" && p1 >= 50;
+
+      const newResult = {
+        type: sel, label: tMap[sel],
+        isVerified: isVerifiedSuccess,
+        o1: { pct: p1, text: getOutcome(sel, 1) },
+        o2: { pct: p2, text: getOutcome(sel, 2) },
+        o3: { pct: p3, text: getOutcome(sel, 3) }
+      };
+      setResult(newResult);
+      
+      const pts = sel === "place" ? 20 : sel === "creature" ? 15 : 10;
+      const newUpload = {
+        id: Date.now(),
+        type: sel, 
+        subType: sel === "magic" ? magicSubType : null,
+        label: tMap[sel],
+        preview, points: pts, note,
+        verifiedSuccess: isVerifiedSuccess,
+        time: new Date().toLocaleString('zh-TW'),
+        timestamp: Date.now(),
+        result: { p1, p2, p3 }
+      };
+      
+      updateData(prev => ({
+        ...prev,
+        uploads: [newUpload, ...prev.uploads],
+        points: prev.points + pts
+      }));
+      
+      if (isVerifiedSuccess) {
+        showNotif("探險驗證成功！+" + pts + " 點並計入任務進度");
+      } else {
+        showNotif("上傳成功！+" + pts + " 點");
+      }
+      setUploading(false);
+    }, 2000);
+  };
+
+  const reset = () => { setResult(null); setSel(null); setPreview(null); setNote(""); };
+
+  return (
+    <div className="tab-in">
+      <h2 style={{ fontFamily: "'Cinzel',serif", fontSize: 17, letterSpacing: 1, marginBottom: 4 }}>探險打卡</h2>
+      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 16 }}>選擇類型，從相簿或相機上傳紀錄</p>
+      
+      {!result ? (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+            {cats.map(c => (
+              <div key={c.id} className={`cat-card ${sel === c.id ? "sel" : ""}`} onClick={() => setSel(c.id)} style={{ borderColor: sel === c.id ? c.c : undefined }}>
+                <div style={{ fontSize: 24, marginBottom: 4 }}>{c.icon}</div>
+                <div style={{ color: sel === c.id ? c.c : "rgba(226,232,240,.75)", fontFamily: "'Cinzel',serif", fontSize: 11, fontWeight: 600, marginBottom: 2 }}>{c.label}</div>
+                <div style={{ background: `rgba(${c.r},.18)`, borderRadius: 100, padding: "2px 7px", display: "inline-block", marginTop: 4 }}>
+                  <span style={{ color: c.c, fontSize: 9, fontFamily: "'Cinzel',serif" }}>+{c.pts}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {sel === "magic" && (
+            <div className="fade-up" style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, marginBottom: 6 }}>魔法專精分支</label>
+              <select value={magicSubType} onChange={e => setMagicSubType(e.target.value)}>
+                {magicTypes.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          )}
+
+          {preview ? (
+            <div style={{ marginBottom: 14 }}>
+              <img src={preview} alt="預覽" className="upload-preview" style={{ marginBottom: 10 }} />
+              <button className="mbtn mbtn-cancel" style={{ padding: "10px", fontSize: 12 }} onClick={() => { setPreview(null); }}>重新選擇照片</button>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+              <div className="up-zone" onClick={() => galleryRef.current.click()}>
+                <div style={{ fontSize: 30, marginBottom: 6 }}>🖼️</div>
+                <p style={{ color: "rgba(167,139,250,.7)", fontSize: 11 }}>從相簿選擇</p>
+                <input ref={galleryRef} type="file" accept="image/*" onChange={handleFile} style={{ display: "none" }} />
+              </div>
+              <div className="up-zone" onClick={() => cameraRef.current.click()}>
+                <div style={{ fontSize: 30, marginBottom: 6 }}>📷</div>
+                <p style={{ color: "rgba(167,139,250,.7)", fontSize: 11 }}>拍照上傳</p>
+                <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={handleFile} style={{ display: "none" }} />
+              </div>
+            </div>
+          )}
+
+          {preview && (
+            <div style={{ marginBottom: 14 }}>
+              <textarea placeholder="描述你的探險或儀式紀錄..." value={note} onChange={e => setNote(e.target.value)} style={{ minHeight: 60 }} />
+            </div>
+          )}
+
+          <button className="mbtn" onClick={submit} disabled={!sel || !preview || uploading}>
+            {uploading ? "靈界占卜中..." : "提交上傳"}
+          </button>
+        </>
+      ) : (
+        <div className="fade-up">
+          <img src={preview} alt="" className="upload-preview" style={{ marginBottom: 12 }} />
+          <div style={{ padding: 12, background: "rgba(139,92,246,.08)", borderRadius: 10, textAlign: "center", marginBottom: 12 }}>
+            <p style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 11, marginBottom: 6 }}>靈界占卜結果</p>
+            <p style={{ color: "rgba(226,232,240,.7)", fontSize: 12 }}>{result.label} 的反饋</p>
+          </div>
+          
+          {result.type === "place" && (
+            <div style={{ marginBottom: 12, padding: 10, borderRadius: 10, background: result.isVerified ? "rgba(52,211,153,0.12)" : "rgba(239,68,68,0.12)", border: result.isVerified ? "1px solid #34d399" : "1px solid #ef4444", textAlign: 'center' }}>
+              <p style={{ fontSize: 12, color: result.isVerified ? "#34d399" : "#ef4444", fontWeight: 'bold' }}>
+                {result.isVerified ? "經靈界驗證：探險成功！(已計入稱號任務)" : "經靈界驗證：成功能量不足 (不計入次數)"}
+              </p>
+            </div>
+          )}
+
+          {[result.o1, result.o2, result.o3].map((o, i) => (
+            <div key={i} className="oracle-box">
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                <span style={{ fontSize: 11, color: "#a78bfa" }}>可能性 {i + 1}</span>
+                <span style={{ color: "#22d3ee", fontWeight: 700, fontSize: 12 }}>{o.pct}%</span>
+              </div>
+              <p style={{ color: "rgba(226,232,240,.7)", fontSize: 11, lineHeight: 1.5 }}>{o.text}</p>
+            </div>
+          ))}
+          <button className="mbtn mbtn-cancel" onClick={reset} style={{ marginTop: 12 }}>繼續上傳</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══ 點數 Tab ═══
+function Points({ data, showNotif, updateData }) {
+  const level = Math.floor(data.points / 250) + 1;
+  const nextLevelPts = level * 250;
+  const progressPct = ((data.points - (level - 1) * 250) / 250) * 100;
+
+  const today = new Date().toDateString();
+  const canCheckIn = data.lastCheckIn !== today;
+
+  const successExplorations = data.uploads.filter(u => u.type === 'place' && u.verifiedSuccess).length;
+
+  const missionList = [
+    { name: "探靈者", count: 10, icon: "👁️" },
+    { name: "尋靈者", count: 50, icon: "🕯️" },
+    { name: "靈界行者", count: 100, icon: "🌀" },
+  ];
+
+  const handleCheckIn = () => {
+    updateData(prev => ({ ...prev, points: prev.points + 1, lastCheckIn: today }));
+    showNotif("每日打卡成功！獲得 1 點");
+  };
+
+  return (
+    <div className="tab-in">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <h2 style={{ fontFamily: "'Cinzel',serif", fontSize: 17, letterSpacing: 1 }}>我的神秘點數</h2>
+        <button onClick={canCheckIn ? handleCheckIn : null} style={{
+          background: canCheckIn ? "linear-gradient(135deg,#7c3aed,#0891b2)" : "rgba(139,92,246,.15)",
+          color: canCheckIn ? "#fff" : "rgba(226,232,240,.5)", border: "none", padding: "6px 14px", borderRadius: 100, fontSize: 11, cursor: canCheckIn ? "pointer" : "default"
+        }}>
+          {canCheckIn ? "每日打卡 (+1)" : "今日已打卡"}
+        </button>
+      </div>
+
+      <div style={{ textAlign: "center", marginBottom: 20, padding: "24px 12px", position: "relative", borderRadius: 18, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center,rgba(139,92,246,.14),transparent 70%)" }} />
+        <div style={{ position: "relative" }}>
+          <div style={{ width: 110, height: 110, margin: "0 auto 14px" }}>
+            <div className="spin-ring" style={{ width: 110, height: 110, borderRadius: "50%", padding: 3, background: "conic-gradient(from 0deg,#7c3aed,#0891b2,#a78bfa,#7c3aed)" }}>
+              <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#0d0d1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 30 }}>💎</span>
+              </div>
+            </div>
+          </div>
+          <div className="grad-text" style={{ fontSize: 38, fontWeight: 900, lineHeight: 1, marginBottom: 6 }}>{data.points.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ color: "#a78bfa", fontSize: 12 }}>進階到 Lv.{level + 1}</span>
+          <span style={{ color: "rgba(226,232,240,.45)", fontSize: 11 }}>{data.points} / {nextLevelPts}</span>
+        </div>
+        <div style={{ height: 6, background: "rgba(139,92,246,.18)", borderRadius: 3, overflow: "hidden" }}>
+          <div style={{ width: `${Math.min(progressPct, 100)}%`, height: "100%", background: "linear-gradient(to right,#7c3aed,#0891b2)" }} />
+        </div>
+      </div>
+
+      <h3 style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 13, letterSpacing: 1, marginBottom: 10 }}>探險稱號任務區 (不開放販售)</h3>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {missionList.map(m => {
+          const progress = Math.min((successExplorations / m.count) * 100, 100);
+          const isDone = successExplorations >= m.count;
+          return (
+            <div key={m.name} className="card" style={{ padding: 12, opacity: isDone ? 1 : 0.7 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>{m.icon}</span>
+                  <span style={{ fontSize: 13, fontWeight: 'bold', color: isDone ? '#22d3ee' : '#e2e8f0' }}>{m.name}</span>
+                </div>
+                <span style={{ fontSize: 11, color: "rgba(226,232,240,0.5)" }}>
+                  {successExplorations} / {m.count} 次成功
+                </span>
+              </div>
+              <div style={{ height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden", marginBottom: 4 }}>
+                <div style={{ width: `${progress}%`, height: "100%", background: isDone ? "linear-gradient(to right,#10b981,#34d399)" : "linear-gradient(to right,#7c3aed,#0891b2)" }} />
+              </div>
+              <p style={{ fontSize: 10, color: 'rgba(226,232,240,0.35)' }}>驗證成功後自動下發檔案</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══ 商店 Tab ═══
+function Shop({ showNotif, data, updateData }) {
+  const [filter, setFilter] = useState("all");
+  const [modal, setModal] = useState(null);
+
+  const filters = [
+    { id: "all", label: "全部", icon: "✦" },
+    { id: "title", label: "稱號", icon: "👑" },
+    { id: "magic", label: "魔法", icon: "✨" },
+    { id: "summon", label: "召喚", icon: "🦊" },
+    { id: "item", label: "道具", icon: "📜" },
+  ];
+
+  const filtered = SHOP_ITEMS.filter(i => filter === "all" || i.type === filter);
+
+  const checkReq = (req) => {
+    if (!req) return { ok: true, msg: "" };
+    if (req.type === 'hasItems') {
+      const hasAll = req.items.every(id => data.purchased.includes(id));
+      return { ok: hasAll, msg: "需先獲得金木水雷四象內練術" };
+    }
+    if (req.type === 'magicUse') {
+      const count = data.uploads.filter(u => u.subType === req.target).length;
+      return { ok: count >= req.count, msg: "需成功施展「" + req.target + "」" + req.count + " 次 (目前: " + count + ")" };
+    }
+    if (req.type === 'drawUse') {
+      const count = data.drawings.filter(d => d.subType === req.target).length;
+      return { ok: count >= req.count, msg: "需成功繪製「" + req.target + "」" + req.count + " 次 (目前: " + count + ")" };
+    }
+    return { ok: true, msg: "" };
+  };
+
+  const buy = (item) => {
+    if (item.type !== "magic" && data.purchased.includes(item.id)) { showNotif("已擁有"); return; }
+    setModal(item);
+  };
+
+  const confirm = (item) => {
+    const status = checkReq(item.req);
+    if (!status.ok) { showNotif("條件未達成: " + status.msg); return; }
+    if (data.points < item.cost) { showNotif("神秘點數不足！"); setModal(null); return; }
+    
+    updateData(prev => ({
+      ...prev,
+      points: prev.points - item.cost,
+      purchased: [...prev.purchased, item.id]
+    }));
+    setModal(null);
+    showNotif("成功解鎖「" + item.name + "」！");
+  };
+
+  return (
+    <div className="tab-in">
+      <h2 style={{ fontSize: 17, letterSpacing: 1, marginBottom: 4 }}>神秘兌換商店</h2>
+      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 14 }}>消耗點數兌換神秘力量與進階稱號</p>
+
+      <div className="filter-bar" style={{ marginBottom: 14 }}>
+        {filters.map(f => (
+          <span key={f.id} className="fpill" onClick={() => setFilter(f.id)} style={{
+            borderColor: filter === f.id ? "rgba(167,139,250,.7)" : "rgba(139,92,246,.2)",
+            background: filter === f.id ? "rgba(139,92,246,.2)" : "transparent",
+            color: filter === f.id ? "#a78bfa" : "rgba(226,232,240,.45)",
+          }}>{f.icon} {f.label}</span>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {filtered.map(item => {
+          const owned = data.purchased.includes(item.id);
+          const isMagic = item.type === "magic";
+          const ownedCount = data.purchased.filter(id => id === item.id).length;
+          
+          return (
+            <div key={item.id} className={`shop-item ${owned && !isMagic ? "owned" : ""}`} onClick={() => buy(item)}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 26, marginBottom: 6 }}>{item.icon}</div>
+                <div style={{ color: "#e2e8f0", fontSize: 11, fontWeight: 600, marginBottom: 4 }}>{item.name}</div>
+                <div style={{ color: "rgba(226,232,240,.4)", fontSize: 9, marginBottom: 6, minHeight: 24 }}>{item.desc}</div>
+                {owned && !isMagic ? (
+                  <span className="tag" style={{ background: "rgba(52,211,153,.14)", border: "1px solid rgba(52,211,153,.3)", color: "#34d399" }}>已解鎖</span>
+                ) : (
+                  <span className="tag" style={{ background: "rgba(245,158,11,.14)", border: "1px solid rgba(245,158,11,.3)", color: "#fbbf24" }}>
+                    💎 {item.cost} {isMagic && ownedCount > 0 && "(" + toChineseNum(ownedCount) + "次)"}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {modal && (
+        <BuyModal 
+          item={modal} 
+          status={checkReq(modal.req)}
+          onConfirm={() => confirm(modal)} 
+          onCancel={() => setModal(null)} 
+        />
+      )}
+    </div>
+  );
+}
+
+function BuyModal({ item, status, onConfirm, onCancel }) {
+  return (
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: 50, marginBottom: 12 }}>{item.icon}</div>
+        <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>{item.name}</h3>
+        <p style={{ color: "rgba(226,232,240,.5)", fontSize: 11, marginBottom: 16 }}>{item.desc}</p>
+        
+        <div style={{ background: "rgba(139,92,246,.1)", borderRadius: 12, padding: 12, marginBottom: 16 }}>
+          {item.req && (
+            <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid rgba(139,92,246,.2)" }}>
+              <p style={{ color: status.ok ? "#34d399" : "#fbbf24", fontSize: 11 }}>
+                {status.ok ? "驗證通過" : "驗證未通過"}
+              </p>
+              <p style={{ color: "rgba(226,232,240,.6)", fontSize: 10, marginTop: 4 }}>{status.msg}</p>
+            </div>
+          )}
+          <p style={{ color: "rgba(226,232,240,.6)", fontSize: 11, marginBottom: 4 }}>所需點數</p>
+          <p style={{ color: "#fbbf24", fontSize: 22, fontWeight: 900 }}>💎 {item.cost}</p>
+        </div>
+        
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="mbtn" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={onConfirm} disabled={!status.ok}>
+            {status.ok ? "確定兌換" : "未達條件"}
+          </button>
+          <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={onCancel}>取消</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══ 紀錄 Tab ═══
+function Records({ data, showNotif, updateData }) {
+  const [viewItem, setViewItem] = useState(null);
+
+  const allRecs = data.uploads.map(u => ({ ...u }));
+
+  const deleteRec = (id) => {
+    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+    updateData(prev => ({ ...prev, uploads: prev.uploads.filter(u => u.id !== id) }));
+    setViewItem(null);
+    showNotif("已刪除");
+  };
+
+  return (
+    <div className="tab-in">
+      <h2 style={{ fontSize: 17, letterSpacing: 1, marginBottom: 14 }}>探險紀錄</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {allRecs.length === 0 ? <p style={{textAlign:"center", color:"#666", marginTop: 40}}>尚未有紀錄</p> : 
+         allRecs.map(rec => (
+          <div key={rec.id} className="card" style={{ display: "flex", gap: 12, alignItems: "center", cursor: "pointer", padding: 12 }} onClick={() => setViewItem(rec)}>
+            <img src={rec.preview} alt="" style={{ width: 50, height: 50, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                <span className="tag" style={{ background: "rgba(139,92,246,.14)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa" }}>{rec.subType || rec.label}</span>
+                <span style={{ color: "#34d399", fontSize: 12, fontWeight: 700 }}>+{rec.points}</span>
+              </div>
+              <p style={{ color: "rgba(226,232,240,.8)", fontSize: 12, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {rec.note || "探索紀錄"} {rec.verifiedSuccess && "驗證成功"}
+              </p>
+              <p style={{ color: "rgba(226,232,240,.32)", fontSize: 10 }}>{rec.time}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {viewItem && (
+        <div className="modal-overlay" onClick={() => setViewItem(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 380 }}>
+            <img src={viewItem.preview} alt="" style={{ width: "100%", maxHeight: 300, objectFit: "contain", borderRadius: 10, marginBottom: 12, background: "rgba(0,0,0,.3)" }} />
+            <div style={{ textAlign: "left", marginBottom: 12 }}>
+              <span className="tag" style={{ background: "rgba(139,92,246,.14)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa", marginBottom: 8, display: "inline-block" }}>{viewItem.subType || viewItem.label}</span>
+              {viewItem.verifiedSuccess && <span className="tag" style={{ background: "rgba(52,211,153,.14)", border: "1px solid rgba(52,211,153,.3)", color: "#34d399", marginBottom: 8, marginLeft: 6, display: "inline-block" }}>驗證成功</span>}
+              <h3 style={{ fontSize: 15, marginBottom: 6, color: "#e2e8f0" }}>{viewItem.note || "探索紀錄"}</h3>
+              <p style={{ color: "rgba(226,232,240,.5)", fontSize: 11, marginBottom: 4 }}>{viewItem.time}</p>
+              <p style={{ color: "#34d399", fontSize: 12, fontWeight: 700 }}>獲得 +{viewItem.points} 點</p>
+            </div>
+            {viewItem.result && (
+              <div style={{ background: "rgba(139,92,246,.08)", borderRadius: 10, padding: 10, marginBottom: 12, textAlign: "left" }}>
+                <p style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 11, marginBottom: 6 }}>占卜結果</p>
+                <p style={{ fontSize: 10, color: "rgba(226,232,240,.6)" }}>成功 {viewItem.result.p1}% / 中等 {viewItem.result.p2}% / 困難 {viewItem.result.p3}%</p>
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => setViewItem(null)}>關閉</button>
+              <button className="mbtn mbtn-danger" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => deleteRec(viewItem.id)}>刪除</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══ 討論 Tab ═══
+function Discuss({ showNotif, data, updateData, role }) {
+  const [post, setPost] = useState("");
+  const [tag, setTag] = useState("魔法道法");
+  const [viewPost, setViewPost] = useState(null);
+
+  const tags = [
+    { name: "魔法道法", color: "#8b5cf6" },
+    { name: "神秘生物", color: "#10b981" },
+    { name: "神秘地點", color: "#3b82f6" },
+    { name: "攻略", color: "#f59e0b" },
+  ];
+
+  const getDisplayName = () => {
+    if (data.customName) return data.customName;
+    return role === "admin" ? "管理員" : "見習術士";
+  };
+
+  const submit = () => {
+    if (!post.trim()) { showNotif("請輸入內容"); return; }
+    const tagObj = tags.find(t => t.name === tag);
+    const newPost = {
+      id: Date.now(),
+      user: getDisplayName(),
+      avatar: role === "admin" ? "⚔️" : "🧙",
+      title: post,
+      replies: 0,
+      likes: 0,
+      time: "剛剛",
+      tag: tag,
+      tc: tagObj.color,
+      isMine: true
+    };
+    updateData(prev => ({ ...prev, posts: [newPost, ...prev.posts] }));
+    setPost("");
+    showNotif("貼文已發布！");
+  };
+
+  const like = (id) => {
+    updateData(prev => ({
+      ...prev,
+      posts: prev.posts.map(p => p.id === id ? { ...p, likes: p.likes + 1, liked: !p.liked } : p)
+    }));
+  };
+
+  const deletePost = (id) => {
+    if (!confirm("確定刪除這則貼文嗎？")) return;
+    updateData(prev => ({ ...prev, posts: prev.posts.filter(p => p.id !== id) }));
+    setViewPost(null);
+    showNotif("已刪除");
+  };
+
+  const allPosts = data.posts;
+
+  return (
+    <div className="tab-in">
+      <h2 style={{ fontFamily: "'Cinzel',serif", fontSize: 17, letterSpacing: 1, marginBottom: 4 }}>公共討論區</h2>
+      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 14 }}>與同道術士們交流</p>
+      
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <span style={{ fontSize: 20 }}>{role === "admin" ? "⚔️" : "🧙"}</span>
+          <span style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 12 }}>{getDisplayName()}</span>
+        </div>
+        <textarea placeholder="分享你的探險心得或提問..." value={post} onChange={e => setPost(e.target.value)} style={{ marginBottom: 10 }} />
+        <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+          {tags.map(t => (
+            <span key={t.name} onClick={() => setTag(t.name)} className="fpill" style={{
+              borderColor: tag === t.name ? t.color : "rgba(139,92,246,.2)",
+              background: tag === t.name ? t.color + "20" : "transparent",
+              color: tag === t.name ? t.color : "rgba(226,232,240,.5)",
+            }}>{t.name}</span>
+          ))}
+        </div>
+        <button className="mbtn" style={{ padding: 10, fontSize: 12 }} onClick={submit}>發布貼文</button>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {allPosts.length === 0 ? (
+          <p style={{textAlign:"center", color:"rgba(226,232,240,.4)", marginTop: 20}}>目前尚無任何討論串，快來發布第一篇貼文吧！</p>
+        ) : (
+          allPosts.map(d => (
+            <div key={d.id} className="card" style={{ padding: 14, cursor: "pointer" }} onClick={() => setViewPost(d)}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 20 }}>{d.avatar}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <span style={{ fontFamily: "'Cinzel',serif", color: "#e2e8f0", fontSize: 11 }}>{d.user}</span>
+                    <span className="tag" style={{ background: d.tc + "20", border: "1px solid " + d.tc + "40", color: d.tc }}>{d.tag}</span>
+                    {d.isMine && <span className="tag" style={{ background: "rgba(245,158,11,.14)", border: "1px solid rgba(245,158,11,.3)", color: "#fbbf24" }}>我的</span>}
+                  </div>
+                  <span style={{ color: "rgba(226,232,240,.32)", fontSize: 10 }}>{d.time}</span>
+                </div>
+              </div>
+              <p style={{ color: "rgba(226,232,240,.83)", fontSize: 12, marginBottom: 10, lineHeight: 1.5 }}>{d.title}</p>
+              <div style={{ display: "flex", gap: 14 }}>
+                <span style={{ color: "rgba(226,232,240,.38)", fontSize: 11 }}>💬 {d.replies}</span>
+                <span style={{ color: d.liked ? "#ef4444" : "rgba(226,232,240,.38)", fontSize: 11, cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); like(d.id); }}>❤️ {d.likes}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {viewPost && (
+        <div className="modal-overlay" onClick={() => setViewPost(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ textAlign: "left" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 30 }}>{viewPost.avatar}</span>
+              <div>
+                <p style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 13 }}>{viewPost.user}</p>
+                <p style={{ color: "rgba(226,232,240,.32)", fontSize: 10 }}>{viewPost.time}</p>
+              </div>
+            </div>
+            <span className="tag" style={{ background: viewPost.tc + "20", border: "1px solid " + viewPost.tc + "40", color: viewPost.tc, marginBottom: 10, display: "inline-block" }}>{viewPost.tag}</span>
+            <p style={{ color: "#e2e8f0", fontSize: 14, lineHeight: 1.7, marginBottom: 14 }}>{viewPost.title}</p>
+            <div style={{ display: "flex", gap: 18, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(139,92,246,.15)" }}>
+              <span style={{ color: "rgba(226,232,240,.6)", fontSize: 12 }}>💬 {viewPost.replies}</span>
+              <span style={{ color: viewPost.liked ? "#ef4444" : "rgba(226,232,240,.6)", fontSize: 12, cursor: "pointer" }} onClick={() => like(viewPost.id)}>❤️ {viewPost.likes}</span>
+            </div>
+            {viewPost.isMine ? (
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => setViewPost(null)}>關閉</button>
+                <button className="mbtn mbtn-danger" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => deletePost(viewPost.id)}>刪除</button>
+              </div>
+            ) : (
+              <button className="mbtn mbtn-cancel" style={{ padding: 10, fontSize: 12 }} onClick={() => setViewPost(null)}>關閉</button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══ 繪圖 Tab ═══
+function Draw({ showNotif, data, updateData }) {
+  const canvasRef = useRef(null);
+  const [drawing, setDrawing] = useState(false);
+  const [color, setColor] = useState("#a78bfa");
+  const [size, setSize] = useState(4);
+  const [mode, setMode] = useState("draw");
+  const [drawType, setDrawType] = useState("一般魔法陣");
+
+  const colors = ["#a78bfa", "#06b6d4", "#f59e0b", "#ef4444", "#10b981", "#ffffff"];
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) { canvas.getContext('2d').fillRect(0, 0, canvas.width, canvas.height); }
+  }, []);
+
+  const getPos = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+    return { x: x * (canvasRef.current.width / rect.width), y: y * (canvasRef.current.height / rect.height) };
+  };
+
+  const start = (e) => { e.preventDefault(); const {x,y} = getPos(e); const ctx = canvasRef.current.getContext('2d'); ctx.beginPath(); ctx.moveTo(x,y); setDrawing(true); };
+  const move = (e) => { if(!drawing) return; e.preventDefault(); const ctx = canvasRef.current.getContext('2d'); ctx.lineWidth=size; ctx.lineCap="round"; ctx.strokeStyle = mode==="erase"?"#0d0d1a":color; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); };
+  const end = () => setDrawing(false);
+  const clear = () => { canvasRef.current.getContext('2d').fillRect(0, 0, 800, 500); };
+
+  const submit = () => {
+    const pts = data.todayDrawPts < 25 ? 5 : 0;
+    const newDrawing = { id: Date.now(), image: canvasRef.current.toDataURL(), subType: drawType, time: new Date().toLocaleDateString() };
+    updateData(prev => ({
+      ...prev,
+      drawings: [newDrawing, ...prev.drawings],
+      todayDrawPts: prev.todayDrawPts + pts,
+      points: prev.points + pts,
+      lastDrawDate: new Date().toDateString()
+    }));
+    showNotif(pts > 0 ? "繪圖提交成功！+5 點" : "繪圖紀錄已保存 (成就+1)");
+    clear();
+  };
+
+  return (
+    <div className="tab-in">
+      <h2 style={{ fontSize: 17, marginBottom: 4 }}>魔法陣繪製</h2>
+      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 12 }}>每日限得25點，但可無限繪製解鎖成就</p>
+      
+      <div className="fade-up" style={{ marginBottom: 10 }}>
+        <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, marginBottom: 6 }}>選擇繪製目標</label>
+        <select value={drawType} onChange={e => setDrawType(e.target.value)}>
+          <option value="一般魔法陣">一般魔法陣</option>
+          <option value="盧恩符文">盧恩符文</option>
+          <option value="符籙">符籙</option>
+        </select>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+        {colors.map(c => (
+          <button key={c} onClick={() => { setColor(c); setMode("draw"); }} style={{ width: 32, height: 32, borderRadius: 6, background: c, border: (color === c && mode === "draw") ? "2px solid #fff" : "none" }} />
+        ))}
+        <button onClick={() => setMode("erase")} style={{ minWidth: 40, height: 32, borderRadius: 6, background: "rgba(139,92,246,.2)", color: "#fff", border: mode==="erase"?"2px solid #fff":"none" }}>橡皮</button>
+      </div>
+
+      <canvas ref={canvasRef} width={800} height={500} onMouseDown={start} onMouseMove={move} onMouseUp={end} onMouseLeave={end} onTouchStart={start} onTouchMove={move} onTouchEnd={end} style={{ border: "2px solid rgba(139,92,246,.3)", borderRadius: 10, width: "100%", touchAction: "none", marginBottom: 12 }} />
+      <button className="mbtn" onClick={submit}>提交 {drawType}</button>
+    </div>
+  );
+}
+
+// ═══ 個人檔案 Tab ═══
+function Profile({ role, data, updateData, onLogout, showNotif }) {
+  const [showTitleSelect, setShowTitleSelect] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  
+  const autoTitles = getAutoTitles(data);
+  const allAvailableTitles = [...SHOP_ITEMS.filter(i => data.purchased.includes(i.id) && i.type === "title"), ...autoTitles];
+  
+  const magicCounts = {};
+  data.purchased.forEach(id => {
+    const item = SHOP_ITEMS.find(i => i.id === id && i.type === "magic");
+    if (item) { magicCounts[item.name] = (magicCounts[item.name] || 0) + 1; }
+  });
+
+  const purchasedOtherItems = SHOP_ITEMS.filter(i => data.purchased.includes(i.id) && i.type !== "title" && i.type !== "magic");
+  const currentTitleObj = data.currentTitle ? [...SHOP_ITEMS, ...autoTitles].find(s => s.id === data.currentTitle) : null;
+  const level = Math.floor(data.points / 250) + 1;
+
+  const getDisplayName = () => {
+    if (data.customName) return data.customName;
+    return role === "admin" ? "管理員" : "見習術士";
+  };
+
+  const setTitle = (id) => { updateData(prev => ({ ...prev, currentTitle: id })); setShowTitleSelect(false); };
+  const resetAll = () => { 
+    if(confirm("確定重置所有數據？這將清除你的所有進度。")) {
+      updateData({ ...defaultData, joinDate: new Date().toLocaleDateString('zh-TW'), lastDrawDate: new Date().toDateString(), isFirstLogin: true, customName: null });
+      showNotif("數據已重置");
+    }
+  };
+
+  const handleNameChange = () => {
+    if (!newName.trim()) { showNotif("請輸入名稱"); return; }
+    if (newName.trim().length > 12) { showNotif("名稱不能超過12字"); return; }
+    updateData(prev => ({ ...prev, customName: newName.trim() }));
+    setShowNameModal(false);
+    setNewName("");
+    showNotif("名稱已更改！");
+  };
+
+  return (
+    <div className="tab-in">
+      <h2 style={{ fontSize: 17, marginBottom: 18 }}>個人檔案</h2>
+      
+      <div className="card" style={{ background: "rgba(139,92,246,.08)", marginBottom: 14, textAlign: "center" }}>
+        <div style={{ fontSize: 44, marginBottom: 10 }}>{role === "admin" ? "⚔️" : "🧙"}</div>
+        <h3 style={{ fontSize: 19, color: "#a78bfa" }}>{getDisplayName()}</h3>
+        <p style={{ color: "rgba(226,232,240,.6)", fontSize: 12, marginBottom: 14 }}>
+          {currentTitleObj ? currentTitleObj.icon + " " + currentTitleObj.name : "見習魔法師"}
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          <div><p style={{ color: "#a78bfa", fontSize: 10 }}>等級</p><p style={{ fontSize: 15, fontWeight: 700 }}>Lv.{level}</p></div>
+          <div><p style={{ color: "#a78bfa", fontSize: 10 }}>點數</p><p style={{ fontSize: 15, fontWeight: 700 }}>{data.points}</p></div>
+          <div><p style={{ color: "#a78bfa", fontSize: 10 }}>稱號</p><p style={{ fontSize: 15, fontWeight: 700 }}>{allAvailableTitles.length}</p></div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+          <h3 style={{ color: "#a78bfa", fontSize: 12 }}>名稱設定</h3>
+          <button onClick={() => { setNewName(data.customName || ""); setShowNameModal(true); }} style={{ background: "rgba(139,92,246,.2)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa", padding: "4px 10px", borderRadius: 6, fontSize: 10 }}>更改名稱</button>
+        </div>
+        <p style={{ fontSize: 12, color: "#e2e8f0" }}>{getDisplayName()}</p>
+      </div>
+
+      <div className="card" style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+          <h3 style={{ color: "#a78bfa", fontSize: 12 }}>當前稱號</h3>
+          <button onClick={() => setShowTitleSelect(true)} style={{ background: "rgba(139,92,246,.2)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa", padding: "4px 10px", borderRadius: 6, fontSize: 10 }}>切換</button>
+        </div>
+        {currentTitleObj ? (
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <span style={{ fontSize: 22 }}>{currentTitleObj.icon}</span>
+            <div><p style={{ color: "#a78bfa", fontSize: 12 }}>{currentTitleObj.name}</p><p style={{ color: "rgba(226,232,240,.4)", fontSize: 10 }}>{currentTitleObj.desc}</p></div>
+          </div>
+        ) : <p style={{ fontSize: 11, color: "#666" }}>未配戴稱號</p>}
+      </div>
+
+      <div className="card" style={{ marginBottom: 12 }}>
+        <h3 style={{ color: "#a78bfa", fontSize: 12, marginBottom: 10 }}>已學魔法</h3>
+        {Object.keys(magicCounts).length === 0 ? (
+          <p style={{ fontSize: 11, color: "#666", textAlign: "center", padding: 8 }}>尚未修煉任何魔法</p>
+        ) : (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {Object.entries(magicCounts).map(([name, count]) => (
+              <span key={name} className="tag" style={{ background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.25)", color: "#a78bfa", padding: "4px 10px", fontSize: 11 }}>
+                {name} {toChineseNum(count)}種
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {purchasedOtherItems.length > 0 && (
+        <div className="card" style={{ marginBottom: 12 }}>
+          <h3 style={{ color: "#a78bfa", fontSize: 12, marginBottom: 10 }}>已解鎖技能/召喚術</h3>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {purchasedOtherItems.map(item => (
+              <span key={item.id} className="tag" style={{ background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.25)", color: "#a78bfa" }}>
+                {item.icon} {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button className="mbtn" style={{ background: "rgba(139,92,246,.2)", marginBottom: 8 }} onClick={onLogout}>登出</button>
+      <button className="mbtn mbtn-danger" onClick={resetAll}>重置所有數據</button>
+
+      {showTitleSelect && (
+        <div className="modal-overlay" onClick={() => setShowTitleSelect(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ textAlign: "left" }}>
+            <h3 style={{ fontSize: 15, marginBottom: 14, textAlign: "center" }}>選擇配戴稱號</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14, maxHeight: "60vh", overflowY: "auto" }}>
+              {allAvailableTitles.map(item => (
+                <div key={item.id} onClick={() => setTitle(item.id)} style={{ padding: 10, background: "rgba(139,92,246,.1)", border: "1px solid #a78bfa", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 22 }}>{item.icon}</span>
+                  <div><p style={{ color: "#a78bfa", fontSize: 12 }}>{item.name}</p></div>
+                </div>
+              ))}
+            </div>
+            <button className="mbtn" onClick={() => { updateData(prev=>({...prev, currentTitle: null})); setShowTitleSelect(false); }}>卸下稱號</button>
+          </div>
+        </div>
+      )}
+
+      {showNameModal && (
+        <div className="modal-overlay" onClick={() => setShowNameModal(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 15, marginBottom: 14 }}>更改名稱</h3>
+            <input 
+              type="text" 
+              placeholder="輸入新名稱 (最多12字)..." 
+              value={newName} 
+              onChange={e => setNewName(e.target.value)} 
+              onKeyDown={e => e.key === "Enter" && handleNameChange()}
+              maxLength={12}
+              style={{ marginBottom: 14 }}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="mbtn" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={handleNameChange}>確定</button>
+              <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => setShowNameModal(false)}>取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CSS = `
+.particle{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.8),rgba(6,182,212,.3));animation:floatUp linear infinite;pointer-events:none;}
+@keyframes floatUp{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:.9;}90%{opacity:.4;}100%{transform:translateY(-10vh) scale(1);opacity:0;}}
+@keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes starBlink{0%,100%{opacity:.25;}50%{opacity:1;}}
+.fade-up{animation:fadeUp .6s ease forwards;}
+.tab-in{animation:fadeUp .35s ease forwards;}
+input,textarea,select{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);color:#e2e8f0;padding:12px 14px;border-radius:10px;width:100%;font-family:'Raleway',sans-serif;font-size:14px;outline:none;transition:all .3s;}
+input:focus,textarea:focus,select:focus{border-color:rgba(139,92,246,.8);box-shadow:0 0 24px rgba(139,92,246,.25);}
+textarea{resize:none;min-height:90px;}
+.mbtn{background:linear-gradient(135deg,#7c3aed,#0891b2);border:none;color:#fff;padding:13px 28px;border-radius:10px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;cursor:pointer;width:100%;transition:all .3s;}
+.mbtn:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(124,58,237,.5);}
+.mbtn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.mbtn-cancel{background:rgba(139,92,246,.25)!important;}
+.mbtn-danger{background:linear-gradient(135deg,#dc2626,#991b1b)!important;}
+.ntab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;border-radius:10px;cursor:pointer;transition:all .3s;color:rgba(226,232,240,.4);font-family:'Cinzel',serif;border:1px solid transparent;flex:1;}
+.ntab.on{color:#a78bfa;background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3);}
+.ntab span:first-child{font-size:18px;}
+.ntab span:last-child{font-size:9px;}
+.card{background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.18);border-radius:14px;padding:16px;transition:all .3s;}
+.cat-card{border:2px solid rgba(139,92,246,.18);border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(255,255,255,.015);}
+.cat-card.sel{border-color:#a78bfa;background:rgba(139,92,246,.12);transform:translateY(-3px);}
+.up-zone{border:2px dashed rgba(139,92,246,.35);border-radius:14px;padding:22px 12px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(139,92,246,.04);}
+.oracle-box{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:12px;margin:8px 0;}
+.shop-item{background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.18);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s;}
+.shop-item.owned{opacity:.7;border-color:rgba(52,211,153,.4);}
+.tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-family:'Cinzel',serif;}
+.notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(124,58,237,.92),rgba(8,145,178,.92));color:#fff;padding:11px 24px;border-radius:100px;font-size:12px;z-index:9999;backdrop-filter:blur(12px);max-width:90vw;text-align:center;}
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:rgba(8,8,20,.95);border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:24px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 60px rgba(139,92,246,.2);}
+.upload-preview{width:100%;max-height:280px;border-radius:10px;object-fit:contain;background:rgba(139,92,246,.05);}
+.spin-ring{animation:spin-slow 8s linear infinite;}
+.grad-text{background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tabbar{padding:6px 4px;background:rgba(6,6,16,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(139,92,246,.18);display:flex;justify-content:space-around;position:sticky;bottom:0;z-index:100;gap:2px;}
+.filter-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;}
+.fpill{padding:5px 12px;border-radius:100px;font-size:11px;cursor:pointer;border:1px solid;transition:all .3s;white-space:nowrap;flex-shrink:0;}
+`;
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
