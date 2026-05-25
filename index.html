@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>獵人夢境</title>
+<link rel="icon" type="image/jpeg" href="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=180&h=180&fit=crop&q=80"/>
+<link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=180&h=180&fit=crop&q=80"/>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -101,7 +103,7 @@ function loadData(role) {
       const today = new Date().toDateString();
       if (d.lastDrawDate !== today) { d.todayDrawPts=0; d.lastDrawDate=today; }
       if (d.lastUploadDate !== today) { d.dailyUploads={arcane:0,beast:0,forbidden:0}; d.lastUploadDate=today; }
-      if (!d.posts) d.posts = []; // 確保舊存檔有 posts 陣列
+      if (!d.posts) d.posts = [];
       return Object.assign(defaultData(), d);
     }
   } catch(e) {}
@@ -173,9 +175,7 @@ function updateData(updater){const prev=state.data;state.data=typeof updater==='
 
 function initBg(){
   const bg=$('bg');
-  // 灰燼
   for(let i=0;i<40;i++){const s=document.createElement('div');s.className='ash';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${Math.random()*3+1}px;height:${Math.random()*3+1}px;--d:${5+Math.random()*6}s;--delay:${Math.random()*5}s`;bg.appendChild(s);}
-  // 血滴
   for(let i=0;i<15;i++){const p=document.createElement('div');p.className='blood-drop';const size=2+Math.random()*4;p.style.cssText=`left:${Math.random()*100}%;top:0;width:${size}px;height:${size}px;--d:${3+Math.random()*5}s;--delay:${Math.random()*4}s`;bg.appendChild(p);}
 }
 
@@ -271,7 +271,6 @@ function renderDiscuss(){
     if(!txt){showNotif('建言不可為空');return;}
     const tc=DISC_TAGS.find(t=>t.name===discussTag).c;
     const newPost={id:Date.now(),user:displayName,avatar:state.role==='admin'?'🪚':'🎩',title:txt,replies:0,likes:0,liked:false,time:'剛剛',tag:discussTag,tc,isMine:true};
-    // 更新並觸發 localStorage 儲存
     updateData(d=>({
       ...d,
       posts: d.posts ? [newPost, ...d.posts] : [newPost]
