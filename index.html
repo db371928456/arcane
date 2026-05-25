@@ -1,1236 +1,324 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#080810" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="玄秘紀元" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="application-name" content="玄秘紀元" />
-  <meta name="msapplication-TileColor" content="#080810" />
-  <meta name="msapplication-tap-highlight" content="no" />
-  <meta name="format-detection" content="telephone=no" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>" />
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIueOhOenmOe0gOWFgyIsCiAgInNob3J0X25hbWUiOiAi546E56eY57SA5YWDIiwKICAiZGVzY3JpcHRpb24iOiAi56We56eY5o6i6Zqq6IiH6a2U5rOV5L+u54eFIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwODA4MTAiLAogICJ0aGVtZV9jb2xvciI6ICIjMDgwODEwIiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48dGV4dCB5PScuOWVtJyBmb250LXNpemU9JzkwJz7wn5SMPC90ZXh0Pjwvc3ZnPiIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=" />
-  <title>玄秘紀元 · Arcane Chronicles</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-    html,body{background:#080810;height:100%;overflow:hidden;}
-    body{font-family:'Raleway',sans-serif;color:#e2e8f0;}
-    #root{height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#050508"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>獵人夢境</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#050508;height:100%;font-family:'Noto Serif TC','Cinzel',serif;color:#d1d5db;overflow:hidden}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative}
+
+/* 灰燼與血滴特效 */
+.ash{position:fixed;border-radius:50%;background:rgba(156,163,175,0.6);pointer-events:none;animation:drift var(--d,5s) ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes drift{0%{transform:translateY(-10vh) translateX(0);opacity:0}20%{opacity:.8}80%{opacity:.5}100%{transform:translateY(100vh) translateX(20px);opacity:0}}
+.blood-drop{position:fixed;border-radius:50%;background:radial-gradient(circle,rgba(185,28,28,.8),transparent);animation:fall var(--d,4s) linear infinite;animation-delay:var(--delay,0s);pointer-events:none}
+@keyframes fall{0%{transform:translateY(-10vh) scale(1);opacity:0}10%{opacity:.8}90%{opacity:.6}100%{transform:translateY(100vh) scale(0.5);opacity:0}}
+
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.fade-in{animation:fadeIn .6s cubic-bezier(0.16, 1, 0.3, 1) forwards}
+
+input,textarea,select{background:rgba(185,28,28,.05);border:1px solid rgba(185,28,28,.25);color:#e5e7eb;padding:11px 14px;border-radius:6px;width:100%;font-family:'Noto Serif TC',serif;font-size:14px;outline:none;transition:border .3s}
+input:focus,textarea:focus,select:focus{border-color:rgba(185,28,28,.7);box-shadow:0 0 15px rgba(185,28,28,.2)}
+input::placeholder,textarea::placeholder{color:rgba(209,213,219,.3)}
+textarea{resize:none;min-height:80px}
+select option{background:#0a0a0f}
+input[type=range]{padding:0;background:none;border:none;box-shadow:none;accent-color:#b91c1c}
+input[type=file]{display:none}
+
+.btn{background:linear-gradient(135deg,#7f1d1d,#450a0a);border:1px solid #991b1b;color:#f3f4f6;padding:13px;border-radius:6px;font-family:'Cinzel',serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;width:100%;transition:all .3s;display:block;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,0.8)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(153,27,27,.4);border-color:#ef4444}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-muted{background:rgba(156,163,175,.1)!important;border-color:rgba(156,163,175,.2)!important;color:#9ca3af!important;letter-spacing:1px!important}
+.btn-danger{background:linear-gradient(135deg,#991b1b,#000000)!important;border-color:#dc2626!important;color:#fca5a5!important}
+.btn-sm{padding:9px;font-size:12px;letter-spacing:1px}
+
+.card{background:rgba(20,10,10,.6);border:1px solid rgba(185,28,28,.2);border-radius:8px;padding:16px;box-shadow:inset 0 0 20px rgba(0,0,0,0.8)}
+.cat-card{border:1px solid rgba(156,163,175,.15);border-radius:8px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(0,0,0,.4)}
+.cat-card.sel{border-color:#dc2626;background:rgba(185,28,28,.15);transform:translateY(-3px);box-shadow:0 4px 15px rgba(185,28,28,.2)}
+.up-zone{border:1px dashed rgba(156,163,175,.3);border-radius:8px;padding:22px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(255,255,255,.02)}
+.up-zone:hover{border-color:#b91c1c;background:rgba(185,28,28,.05)}
+.oracle-box{background:rgba(0,0,0,.5);border:1px solid rgba(185,28,28,.3);border-radius:6px;padding:12px;margin:8px 0;border-left:3px solid #b91c1c}
+.shop-item{background:rgba(10,5,5,.8);border:1px solid rgba(156,163,175,.15);border-radius:8px;padding:12px;cursor:pointer;transition:all .3s;text-align:center}
+.shop-item:hover{transform:translateY(-2px);border-color:#b91c1c;box-shadow:0 6px 20px rgba(185,28,28,.15)}
+.disc-card{border:1px solid rgba(156,163,175,.1);border-radius:8px;padding:14px;cursor:pointer;transition:all .3s;background:rgba(10,10,15,.6)}
+.disc-card:hover{border-color:rgba(185,28,28,.4);background:rgba(185,28,28,.05)}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:'Cinzel',serif;border:1px solid}
+
+.header{padding:14px 16px 12px;background:rgba(5,5,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(185,28,28,.3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header-title{font-family:'Cinzel Decorative',serif;font-size:16px;color:#f87171;text-shadow:0 0 10px rgba(220,38,38,0.5);letter-spacing:1px}
+.header-sub{color:#9ca3af;font-size:10px;font-family:'Cinzel',serif;margin-top:2px}
+.pts-badge{background:rgba(185,28,28,.1);border:1px solid rgba(185,28,28,.4);border-radius:4px;padding:6px 12px;display:flex;align-items:center;gap:6px}
+.pts-num{color:#fca5a5;font-family:'Cinzel',serif;font-weight:700;font-size:15px;text-shadow:0 0 5px rgba(220,38,38,0.8)}
+
+.tabbar{padding:6px 4px;padding-bottom:calc(6px + env(safe-area-inset-bottom,12px));background:rgba(5,5,8,.98);border-top:1px solid rgba(185,28,28,.3);display:flex;justify-content:space-around;position:fixed;bottom:0;left:0;right:0;z-index:100;max-width:480px;margin:0 auto;gap:2px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:6px;cursor:pointer;transition:all .3s;color:#6b7280;flex:1}
+.tab.on{color:#fca5a5;background:rgba(185,28,28,.15);box-shadow:inset 0 -2px 0 #dc2626}
+.tab-icon{font-size:18px;line-height:1;filter:grayscale(100%) opacity(0.6)}
+.tab.on .tab-icon{filter:none opacity(1);text-shadow:0 0 8px rgba(220,38,38,0.6)}
+.tab-label{font-size:10px;font-family:'Noto Serif TC',serif;font-weight:700}
+
+.content{flex:1;overflow-y:auto;padding:16px 14px 120px;-webkit-overflow-scrolling:touch}
+.section-title{font-family:'Cinzel',serif;color:#fca5a5;font-size:18px;letter-spacing:2px;margin-bottom:4px;text-shadow:0 0 10px rgba(185,28,28,0.5)}
+.section-sub{color:#9ca3af;font-size:12px;margin-bottom:16px}
+.sec-label{font-family:'Cinzel',serif;color:#9ca3af;font-size:12px;letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(156,163,175,.2);padding-bottom:4px}
+.grad-text{color:#f87171;text-shadow:0 0 15px rgba(220,38,38,0.8)}
+
+.modal-bg{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s ease}
+.modal{background:rgba(10,5,5,.98);border:1px solid #7f1d1d;border-radius:8px;padding:24px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 40px rgba(185,28,28,.3)}
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(185,28,28,.15);animation:spin 15s linear infinite;pointer-events:none}
+.notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7f1d1d,#000000);border:1px solid #dc2626;color:#fca5a5;padding:12px 24px;border-radius:4px;font-size:13px;font-family:'Noto Serif TC',serif;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.8);max-width:90vw;text-align:center;animation:fadeIn .3s cubic-bezier(0.16, 1, 0.3, 1);white-space:nowrap;letter-spacing:1px}
+.filter-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.fpill{padding:6px 14px;border-radius:4px;font-size:12px;font-family:'Cinzel',serif;cursor:pointer;border:1px solid;transition:all .3s;white-space:nowrap;flex-shrink:0;background:rgba(0,0,0,.5)}
+.spin-ring{animation:spin 12s linear infinite;width:110px;height:110px;border-radius:50%;padding:2px;background:conic-gradient(from 0deg,#7f1d1d,#111,#dc2626,#7f1d1d);flex-shrink:0}
+.spin-ring-inner{width:100%;height:100%;border-radius:50%;background:#050508;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:inset 0 0 20px rgba(0,0,0,0.9)}
+.preview-img{width:100%;max-height:280px;border-radius:4px;object-fit:cover;background:#000;display:block;margin-bottom:10px;border:1px solid #4b5563;filter:contrast(1.1) brightness(0.9)}
+#draw-canvas{border:1px solid rgba(156,163,175,.3);border-radius:4px;width:100%;touch-action:none;display:block;cursor:crosshair;background:#0a0a0f;box-shadow:inset 0 0 30px rgba(0,0,0,0.9)}
+.swatch{width:32px;height:32px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,.1);flex-shrink:0;transition:transform .2s}
+.swatch.active{border:2px solid #fca5a5;transform:scale(1.15);box-shadow:0 0 10px currentColor}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(185,28,28,.4);border-radius:2px}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  
-  <script type="text/babel" data-presets="react">
-const { useState, useRef, useEffect } = React;
-
-// ═══ 數據持久化 ═══
-const STORAGE_KEY = "arcane_chronicles_data";
-
-const defaultData = {
-  points: 0,
-  uploads: [],
-  purchased: [],
-  currentTitle: null,
-  drawings: [],
-  posts: [],
-  todayDrawPts: 0,
-  lastDrawDate: null,
-  lastCheckIn: null,
-  loginCount: 0,
-  joinDate: null,
-  customName: null,
-  isFirstLogin: true,
-};
-
+<div id="app"></div>
+<script>
+const STORE_KEY = 'bloodborne_v1';
+function defaultData() {
+  return {points:0,uploads:[],purchased:[],currentTitle:null,drawings:[],posts:[],todayDrawPts:0,lastDrawDate:null,lastCheckIn:null,loginCount:0,joinDate:null,customName:null,isFirstLogin:true,dailyUploads:{arcane:0,beast:0,forbidden:0},lastUploadDate:null};
+}
 function loadData(role) {
   try {
-    const key = STORAGE_KEY + "_" + role;
-    const data = localStorage.getItem(key);
-    if (data) {
-      const parsed = JSON.parse(data);
+    const raw = localStorage.getItem(STORE_KEY+'_'+role);
+    if (raw) {
+      const d = JSON.parse(raw);
       const today = new Date().toDateString();
-      if (parsed.lastDrawDate !== today) {
-        parsed.todayDrawPts = 0;
-        parsed.lastDrawDate = today;
-      }
-      return { ...defaultData, ...parsed };
+      if (d.lastDrawDate !== today) { d.todayDrawPts=0; d.lastDrawDate=today; }
+      if (d.lastUploadDate !== today) { d.dailyUploads={arcane:0,beast:0,forbidden:0}; d.lastUploadDate=today; }
+      if (!d.posts) d.posts = []; // 確保舊存檔有 posts 陣列
+      return Object.assign(defaultData(), d);
     }
-  } catch (e) { console.error(e); }
-  return { ...defaultData, joinDate: new Date().toLocaleDateString('zh-TW'), lastDrawDate: new Date().toDateString(), isFirstLogin: true };
+  } catch(e) {}
+  return Object.assign(defaultData(), {joinDate:new Date().toLocaleDateString('zh-TW'), lastDrawDate:new Date().toDateString(), lastUploadDate:new Date().toDateString()});
 }
-
 function saveData(role, data) {
-  try {
-    localStorage.setItem(STORAGE_KEY + "_" + role, JSON.stringify(data));
-  } catch (e) { console.error(e); }
+  try { localStorage.setItem(STORE_KEY+'_'+role, JSON.stringify(data)); } catch(e) {}
 }
-
-// ═══ 常量與星空特效 ═══
-const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
-  id: i, left: (i * 4.37 + 7) % 100, delay: (i * 0.4) % 8, duration: 6 + (i * 0.37) % 8, size: 2 + (i * 0.23) % 4,
-}));
-const STARS = Array.from({ length: 70 }, (_, i) => ({
-  id: i, left: (i * 1.27) % 100, top: (i * 1.7 + 3) % 100, big: i % 5 === 0,
-  color: i % 3 === 0 ? "#a78bfa" : i % 3 === 1 ? "#22d3ee" : "#fbbf24",
-  duration: 3 + (i % 4), delay: (i * 0.15) % 4,
-}));
-
-// 商店物品
-const SHOP_ITEMS = [
-  { id: 8, name: "金內練術", cost: 100, icon: "⚙️", desc: "修煉金屬元素之力", type: "magic" },
-  { id: 9, name: "木內練術", cost: 100, icon: "🌿", desc: "感應自然生命之力", type: "magic" },
-  { id: 10, name: "水內練術", cost: 100, icon: "💧", desc: "掌控流動變化之力", type: "magic" },
-  { id: 11, name: "雷內練術", cost: 100, icon: "⚡", desc: "駕馭天雷霹靂之力", type: "magic" },
-  { id: 12, name: "白魔法", cost: 100, icon: "🕊️", desc: "淨化治癒守護的光明術法", type: "magic" },
-  { id: 13, name: "黑魔法", cost: 100, icon: "☽", desc: "汲取黑暗力量的禁斷術法", type: "magic" },
-  { id: 16, name: "古老的紗草紙魔法", cost: 150, icon: "📜", desc: "來自埃及與希臘的古老秘術", type: "magic" },
-  { id: 17, name: "自然魔法", cost: 100, icon: "🌳", desc: "連結大地與精靈的魔法", type: "magic" },
-  
-  { id: 18, name: "式神召喚", cost: 1000, icon: "🦊", desc: "陰陽道役使的靈體", type: "summon" },
-  { id: 19, name: "天使召喚", cost: 1000, icon: "👼", desc: "呼喚神聖界域的使者", type: "summon" },
-  { id: 20, name: "惡魔召喚", cost: 1000, icon: "👿", desc: "與深淵存在締結契約", type: "summon" },
-  
-  { id: 14, name: "魔法觀認知", cost: 200, icon: "📜", desc: "基礎魔法圓陣繪製技巧", type: "item" },
-  { id: 26, name: "魔藥學", cost: 250, icon: "🧪", desc: "探索神秘藥劑的調配奧義", type: "item" },
-
-  // 進階稱號
-  { id: 4, name: "黑魔法師", cost: 1000, icon: "🌑", desc: "需使用黑魔法100次", type: "title", req: { type: 'magicUse', target: '黑魔法', count: 100 } },
-  { id: 21, name: "白魔法師", cost: 1000, icon: "🕊️", desc: "需使用白魔法100次", type: "title", req: { type: 'magicUse', target: '白魔法', count: 100 } },
-  { id: 22, name: "盧恩學者", cost: 1000, icon: "ᚱ", desc: "需成功繪製盧恩符文100次", type: "title", req: { type: 'drawUse', target: '盧恩符文', count: 100 } },
-  { id: 23, name: "符籙繪師", cost: 1000, icon: "🧧", desc: "需成功繪製符籙100次", type: "title", req: { type: 'drawUse', target: '符籙', count: 100 } },
-  { id: 24, name: "神代術士", cost: 1000, icon: "👁️‍🗨️", desc: "需成功古老的紗草紙魔法儀式50次", type: "title", req: { type: 'magicUse', target: '古老的紗草紙魔法', count: 50 } },
-  { id: 25, name: "四象術師", cost: 1000, icon: "☯️", desc: "需集齊金木水雷四象內練術", type: "title", req: { type: 'hasItems', items: [8, 9, 10, 11] } },
-];
-
-// 數字轉中文量詞
-const toChineseNum = (num) => {
-  const arr = ['零', '一', '兩', '三', '四', '五', '六', '七', '八', '九', '十'];
-  if (num <= 10) return arr[num];
-  return num;
-};
-
-// 任務區動態驗證：取得真實探尋成就稱號
-function getAutoTitles(data) {
-  const successCount = data.uploads.filter(u => u.type === 'place' && u.verifiedSuccess).length;
-  const autoTitles = [];
-  if (successCount >= 10) autoTitles.push({ id: "auto_1", name: "探靈者", icon: "👁️", desc: "經過驗證後的成功探險達 10 次", type: "title" });
-  if (successCount >= 50) autoTitles.push({ id: "auto_2", name: "尋靈者", icon: "🕯️", desc: "經過驗證後的成功探險達 50 次", type: "title" });
-  if (successCount >= 100) autoTitles.push({ id: "auto_3", name: "靈界行者", icon: "🌀", desc: "經過驗證後的成功探險達 100 次", type: "title" });
-  return autoTitles;
+function getMoonPhase() {
+  const known = new Date(2000,0,6,18,14);
+  const phase = ((((Date.now()-known.getTime())/86400000)%29.53)+29.53)%29.53;
+  const phases = [{name:'血月',symbol:'🌑',modifier:1.3},{name:'蒼白之月',symbol:'🌒',modifier:0.9},{name:'隱匿之月',symbol:'🌓',modifier:1.0},{name:'微光之月',symbol:'🌔',modifier:1.05},{name:'狂父滿月',symbol:'🌕',modifier:1.4},{name:'衰亡之月',symbol:'🌖',modifier:1.0},{name:'殘缺之月',symbol:'🌗',modifier:0.85},{name:'死寂之月',symbol:'🌘',modifier:0.8}];
+  return phases[Math.min(Math.floor(phase/3.69),7)];
 }
-
-// 占卜計算
+function getTimeEnergy() {
+  const h = new Date().getHours();
+  if (h>=23||h<3) return {name:'夜之夢魘',modifier:1.3};
+  if (h>=3&&h<6)  return {name:'破曉前的瘋狂',modifier:1.2};
+  if (h>=6&&h<12) return {name:'虛偽的白晝',modifier:0.7};
+  if (h>=12&&h<17)return {name:'沉睡時刻',modifier:0.6};
+  if (h>=17&&h<20)return {name:'黃昏血光',modifier:1.0};
+  return {name:'逢魔之刻',modifier:1.15};
+}
 function divineCalc(name, q, seed) {
-  const c = name + "夏娃" + q + seed;
-  let h = 0;
-  for (let i = 0; i < c.length; i++) { h = ((h << 5) - h) + c.charCodeAt(i); h = h & h; }
-  const a = Math.abs(h);
-  const p1 = (a % 40) + 35;
-  const p2 = ((a >> 8) % 35) + 20;
-  return { p1, p2, p3: 100 - p1 - p2 };
+  const moon = getMoonPhase();
+  const time = getTimeEnergy();
+  const c = name+'上位者'+q+seed+moon.name+time.name;
+  let h=0;
+  for(let i=0;i<c.length;i++){h=((h<<5)-h)+c.charCodeAt(i);h=h&h;}
+  const a=Math.abs(h);
+  let p1 = Math.round(((a%40)+25)*moon.modifier*time.modifier);
+  p1 = Math.min(Math.max(p1,10),80);
+  const p2 = Math.min(Math.round(((a>>8)%30)+15), 100-p1-5);
+  return {p1, p2, p3:100-p1-p2, moon, time};
+}
+const OUTCOMES = {
+  arcane:{1:'啟蒙驟升！成功解讀古神低語，血質與祕法完美共鳴。',2:'儀式勉強完成，但心智受到輕微侵蝕，需服用鎮靜劑。',3:'儀式崩潰，陷入短暫的瘋狂，一無所獲。'},
+  beast:{1:'獵殺完成！野獸倒在血泊中，取得珍貴的血之迴響。',2:'野獸逃脫，留下殘缺的毛皮與血跡，險象環生。',3:'這是不祥的徵兆...附近沒有獵物，只有死寂。'},
+  forbidden:{1:'提燈點亮！發掘了被治癒教會隱藏的禁忌秘密。',2:'此處殘存著強烈的怨念與毒沼，探索艱難。',3:'古神設下結界，凡人不可涉足此等深淵。'}
+};
+const SHOP = [
+  {id:8,name:'中空的幻影外殼',cost:100,icon:'🐚',desc:'附魔祕法，武器纏繞星光',type:'arcane'},{id:9,name:'伊碧塔絲的預兆',cost:150,icon:'🦑',desc:'召喚宇宙之女的觸手',type:'arcane'},{id:10,name:'刀斧手手套',cost:200,icon:'🧤',desc:'發射追蹤的怨靈骷髏',type:'arcane'},{id:11,name:'野獸咆哮',cost:100,icon:'🐺',desc:'彈開周圍的敵人與飛行物',type:'arcane'},{id:12,name:'怪獸血丸',cost:80,icon:'💊',desc:'引發狂暴，提升物理攻擊',type:'item'},{id:13,name:'火紙與閃電紙',cost:100,icon:'📜',desc:'為右手武器附上元素傷害',type:'item'},{id:16,name:'提燈',cost:50,icon:'🏮',desc:'照亮暗處，連結獵人夢境',type:'item'},
+  {id:18,name:'招募老獵人',cost:500,icon:'🔔',desc:'搖響召喚鐘，尋求先驅協助',type:'summon'},{id:19,name:'入侵者',cost:800,icon:'🩸',desc:'搖響惡兆鐘，獵殺其他獵人',type:'summon'},
+  {id:21,name:'治癒教會神職人員',cost:1000,icon:'⛪',desc:'需成功施展祕法100次',type:'title',req:{type:'magicUse',target:'教會祕法',count:100}},{id:4,name:'拜爾金沃斯學者',cost:1000,icon:'👁️',desc:'需發掘禁忌古蹟50次',type:'title',req:{type:'magicUse',target:'宇宙之眼',count:50}},{id:23,name:'卡爾符文工匠',cost:800,icon:'🪨',desc:'需成功刻畫符文100次',type:'title',req:{type:'drawUse',target:'卡爾符文',count:100}},
+  {id:30,name:'鋸肉刀',cost:250,icon:'🪚',desc:'初始獵人最可靠的變形武器',type:'item'},
+  {id:31,name:'路德維希聖劍',cost:600,icon:'🗡️',desc:'治癒教會的重型銀劍',type:'item'}
+];
+function checkReq(req, data) {
+  if (!req) return {ok:true,msg:""};
+  if (req.type==="magicUse") { const count=data.uploads.filter(u=>u.type==='arcane'&&u.subType===req.target&&u.isSuccess).length; return {ok:count>=req.count,msg:`需成功施展「${req.target}」${req.count}次（目前：${count}次）`}; }
+  if (req.type==="drawUse") { const count=data.drawings.filter(d=>d.subType===req.target).length; return {ok:count>=req.count,msg:`需刻畫「${req.target}」${req.count}次（目前：${count}次）`}; }
+  return {ok:true,msg:""};
+}
+const DAILY_LIMITS = {arcane:50,beast:50,forbidden:50};
+const ARCANE_TYPES = ['教會祕法','宇宙之眼','血質轉換','古神契約','獸化控制'];
+let state = {stage:localStorage.getItem('bloodborne_session')?'main':'login',role:localStorage.getItem('bloodborne_session')||null,data:null,tab:'upload',notifTimer:null,drawColor:'#b91c1c',drawSize:4,drawMode:'draw',isDrawing:false};
+
+if (state.role) { state.data=loadData(state.role); if(!state.data.customName) state.stage='name'; }
+
+function $(id){ return document.getElementById(id); }
+function E(tag,attrs={},...children) {
+  const el=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs)){if(k==='class')el.className=v;else if(k.startsWith('on'))el.addEventListener(k.slice(2).toLowerCase(),v);else if(k==='style'&&typeof v==='object')Object.assign(el.style,v);else if(k==='html')el.innerHTML=v;else el.setAttribute(k,v);}
+  for(const c of children){if(c==null)continue;el.appendChild(typeof c==='string'?document.createTextNode(c):c);}
+  return el;
+}
+function showNotif(msg){const el=$('notif');el.textContent=msg;el.style.display='block';if(state.notifTimer)clearTimeout(state.notifTimer);state.notifTimer=setTimeout(()=>el.style.display='none',3000);}
+function updateData(updater){const prev=state.data;state.data=typeof updater==='function'?updater(prev):Object.assign({},prev,updater);saveData(state.role,state.data);render();}
+
+function initBg(){
+  const bg=$('bg');
+  // 灰燼
+  for(let i=0;i<40;i++){const s=document.createElement('div');s.className='ash';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${Math.random()*3+1}px;height:${Math.random()*3+1}px;--d:${5+Math.random()*6}s;--delay:${Math.random()*5}s`;bg.appendChild(s);}
+  // 血滴
+  for(let i=0;i<15;i++){const p=document.createElement('div');p.className='blood-drop';const size=2+Math.random()*4;p.style.cssText=`left:${Math.random()*100}%;top:0;width:${size}px;height:${size}px;--d:${3+Math.random()*5}s;--delay:${Math.random()*4}s`;bg.appendChild(p);}
 }
 
-function getOutcome(type, num) {
-  const t = {
-    magic: { 1: "靈界強烈回應！術法順利施展。", 2: "效果中等，遭遇輕微阻力。", 3: "施展困難，靈力散亂。" },
-    creature: { 1: "靈體強烈回應！成功拍到神秘生物。", 2: "靈體反應模糊，需加倍警覺。", 3: "此地暫無明顯靈異現象。" },
-    place: { 1: "靈界認可！此處蘊含豐富靈力。", 2: "靈力複雜，需謹慎探索。", 3: "靈界沈默，暫時無法感知。" }
-  };
-  return t[type][num];
+function render(){const app=$('app-content');if(!app)return;app.innerHTML='';if(state.stage==='login'){app.appendChild(renderLogin());return;}if(state.stage==='name'){app.appendChild(renderNameModal());return;}if(state.stage==='main'){app.appendChild(renderMain());return;}}
+
+function renderLogin(){
+  const wrap=E('div',{style:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',position:'relative'}});
+  const r1=E('div',{class:'ring',style:{width:'360px',height:'360px',top:'50%',left:'50%',marginLeft:'-180px',marginTop:'-180px'}});
+  wrap.appendChild(r1);
+  const box=E('div',{class:'fade-in',style:{width:'100%',maxWidth:'380px',position:'relative',zIndex:10}});
+  box.innerHTML=`<div style="text-align:center;margin-bottom:28px"><div style="font-size:56px;margin-bottom:10px;filter:drop-shadow(0 0 10px #b91c1c)">🩸</div><h1 class="header-title" style="font-size:26px;font-weight:900;letter-spacing:4px">獵人手札</h1><p style="color:#9ca3af;font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;margin-top:6px">YHARNAM NOTES</p></div><div style="background:rgba(10,5,5,.85);border:1px solid #7f1d1d;border-radius:8px;padding:28px 24px;box-shadow:0 10px 30px rgba(0,0,0,0.8)"><div style="margin-bottom:16px"><label style="display:block;color:#9ca3af;font-family:'Noto Serif TC',serif;font-size:12px;letter-spacing:2px;margin-bottom:6px">契約代號</label><input id="l-user" type="text" placeholder="輸入代號..."></div><div style="margin-bottom:24px"><label style="display:block;color:#9ca3af;font-family:'Noto Serif TC',serif;font-size:12px;letter-spacing:2px;margin-bottom:6px">密碼</label><input id="l-pass" type="password" placeholder="輸入密碼..."></div><button class="btn" id="login-btn">簽署契約</button><p style="text-align:center;margin-top:14px;color:#6b7280;font-size:11px">管理員/武者 或 @@/##</p></div>`;
+  wrap.appendChild(box);
+  setTimeout(()=>{const btn=$('login-btn');if(btn)btn.onclick=doLogin;['l-user','l-pass'].forEach(id=>{const el=$(id);if(el)el.onkeydown=e=>{if(e.key==='Enter')doLogin();};});},0);
+  return wrap;
 }
 
-// ═══ 主 App ═══
-function App() {
-  const [stage, setStage] = useState("login");
-  const [tab, setTab] = useState("upload");
-  const [u, setU] = useState("");
-  const [p, setP] = useState("");
-  const [notif, setNotif] = useState(null);
-  const [role, setRole] = useState(null);
-  const [data, setData] = useState(defaultData);
-  const [showFirstNameModal, setShowFirstNameModal] = useState(false);
-  const [firstName, setFirstName] = useState("");
+function doLogin(){const u=($('l-user')||{}).value||'';const p=($('l-pass')||{}).value||'';if(!u||!p){showNotif('資訊不全');return;}let r=null;if(u==='管理員'&&p==='武者')r='admin';else if(u==='@@'&&p==='##')r='user';else{showNotif('契約無效');return;}state.role=r;localStorage.setItem('bloodborne_session',r);state.data=loadData(r);state.data.loginCount=(state.data.loginCount||0)+1;saveData(r,state.data);if(!state.data.customName){state.stage='name';}else{state.stage='main';}render();}
 
-  const showNotif = (m) => { setNotif(m); setTimeout(() => setNotif(null), 2500); };
-  
-  const updateData = (updater) => {
-    setData(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      if (role) saveData(role, next);
-      return next;
-    });
-  };
+function renderNameModal(){const wrap=E('div',{style:{position:'fixed',inset:'0',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',background:'#050508',zIndex:9999}});wrap.innerHTML=`<div class="modal fade-in" style="max-width:340px;width:100%"><div style="font-size:40px;margin-bottom:12px">🎩</div><h3 style="font-size:18px;color:#fca5a5;margin-bottom:8px">歡迎來到亞南</h3><p style="color:#9ca3af;font-size:12px;margin-bottom:16px;line-height:1.7">外來者，告訴我你的名字<br>這將刻在你的墓碑上</p><input id="name-input" type="text" placeholder="輸入獵人名稱（最多12字）" maxlength="12" style="margin-bottom:16px"><button class="btn" id="name-btn">踏入夢境</button></div>`;setTimeout(()=>{const btn=$('name-btn');if(btn)btn.onclick=confirmName;const inp=$('name-input');if(inp){inp.onkeydown=e=>{if(e.key==='Enter')confirmName();};inp.focus();}},0);return wrap;}
 
-  const login = () => {
-    if (!u.trim() || !p.trim()) { showNotif("請輸入帳號和密碼"); return; }
-    let newRole = null;
-    if (u === "管理員" && p === "武者") newRole = "admin";
-    else if (u === "@@" && p === "##") newRole = "user";
-    else { showNotif("帳號或密碼錯誤"); return; }
-    
-    setRole(newRole);
-    const loaded = loadData(newRole);
-    loaded.loginCount = (loaded.loginCount || 0) + 1;
-    setData(loaded);
-    saveData(newRole, loaded);
-    
-    // 檢查是否需要首次命名
-    if (!loaded.customName || loaded.isFirstLogin) {
-      setShowFirstNameModal(true);
-    }
-    
-    setStage("main");
-    setU(""); setP("");
-  };
+function confirmName(){const val=($('name-input')||{}).value||'';if(!val.trim()){showNotif('請輸入名稱');return;}updateData(d=>({...d,customName:val.trim(),isFirstLogin:false}));state.stage='main';showNotif('獵殺開始，'+val.trim());render();}
 
-  const handleFirstName = () => {
-    if (!firstName.trim()) { showNotif("請輸入你的術士名號"); return; }
-    if (firstName.trim().length > 12) { showNotif("名號不能超過12字"); return; }
-    updateData(prev => ({ ...prev, customName: firstName.trim(), isFirstLogin: false }));
-    setShowFirstNameModal(false);
-    setFirstName("");
-    showNotif("歡迎加入玄秘紀元，" + firstName.trim() + "！");
-  };
+const TABS=[{id:'upload',icon:'🏮',label:'探索'},{id:'points',icon:'🩸',label:'迴響'},{id:'shop',icon:'🛒',label:'信使'},{id:'records',icon:'📜',label:'手札'},{id:'discuss',icon:'🔔',label:'共鳴'},{id:'draw',icon:'🪨',label:'刻印'},{id:'profile',icon:'🎩',label:'狀態'}];
 
-  const logout = () => {
-    setStage("login"); setRole(null); setData(defaultData); setTab("upload"); showNotif("已登出");
-  };
+function renderMain(){const d=state.data;const allItems=SHOP.concat(getAutoTitles(d));const cur=d.currentTitle?allItems.find(s=>s.id===d.currentTitle):null;const wrap=E('div',{class:'fade-in',style:{display:'contents'}});const hdr=E('div',{class:'header'});hdr.innerHTML=`<div><div class="header-title">獵人夢境</div><div class="header-sub">${cur?cur.icon+' '+cur.name:(state.role==='admin'?'⚔️ 狩獵長':'🩸 外來者')}</div></div><div class="pts-badge"><span style="font-size:13px">🩸</span><span class="pts-num">${d.points.toLocaleString()}</span></div>`;wrap.appendChild(hdr);const content=E('div',{class:'content',id:'tab-content'});renderTab(content);wrap.appendChild(content);const bar=E('div',{class:'tabbar'});TABS.forEach(t=>{const tab=E('div',{class:'tab'+(state.tab===t.id?' on':'')});tab.innerHTML=`<span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span>`;tab.onclick=()=>{state.tab=t.id;renderTabContent();};bar.appendChild(tab);});wrap.appendChild(bar);return wrap;}
 
-  return (
-    <div style={{ background: "#080810", minHeight: "100vh", overflow: "hidden", position: "relative" }}>
-      <style>{CSS}</style>
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        {STARS.map(s => (
-          <div key={s.id} style={{ position: "absolute", borderRadius: "50%", width: s.big ? "2px" : "1px", height: s.big ? "2px" : "1px", background: s.color, left: `${s.left}%`, top: `${s.top}%`, animation: `starBlink ${s.duration}s ease-in-out infinite`, animationDelay: `${s.delay}s` }} />
-        ))}
-      </div>
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        {PARTICLES.map(p => (
-          <div key={p.id} className="particle" style={{ left: `${p.left}%`, bottom: 0, width: `${p.size}px`, height: `${p.size}px`, animationDuration: `${p.duration}s`, animationDelay: `${p.delay}s` }} />
-        ))}
-      </div>
-      {notif && <div className="notif">{notif}</div>}
-      {stage === "login" && <Login u={u} setU={setU} p={p} setP={setP} onLogin={login} />}
-      {stage === "main" && <Main tab={tab} setTab={setTab} showNotif={showNotif} role={role} data={data} updateData={updateData} onLogout={logout} />}
-      
-      {/* 首次命名彈窗 */}
-      {showFirstNameModal && (
-        <div className="modal-overlay">
-          <div className="modal-box fade-up">
-            <div style={{ fontSize: 50, marginBottom: 12 }}>🔮</div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, color: "#a78bfa" }}>歡迎來到玄秘紀元</h3>
-            <p style={{ color: "rgba(226,232,240,.6)", fontSize: 12, marginBottom: 16, lineHeight: 1.6 }}>
-              在開始你的神秘探險之前<br/>請先為自己取一個術士名號
-            </p>
-            <input 
-              type="text" 
-              placeholder="輸入你的術士名號 (最多12字)..." 
-              value={firstName} 
-              onChange={e => setFirstName(e.target.value)} 
-              onKeyDown={e => e.key === "Enter" && handleFirstName()}
-              maxLength={12}
-              style={{ marginBottom: 16 }}
-              autoFocus
-            />
-            <button className="mbtn" onClick={handleFirstName}>確認名號，開始冒險</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+function renderTabContent(){const content=$('tab-content');if(!content)return;document.querySelectorAll('.tab').forEach((el,i)=>{el.className='tab'+(TABS[i].id===state.tab?' on':'');});content.innerHTML='';renderTab(content);content.scrollTop=0;}
 
-// ═══ 登入頁 ═══
-function Login({ u, setU, p, setP, onLogin }) {
-  const [showInstall, setShowInstall] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+function renderTab(container){switch(state.tab){case'upload':container.appendChild(renderUpload());break;case'points':container.appendChild(renderPoints());break;case'shop':container.appendChild(renderShop());break;case'records':container.appendChild(renderRecords());break;case'discuss':container.appendChild(renderDiscuss());break;case'draw':container.appendChild(renderDraw());break;case'profile':container.appendChild(renderProfile());break;}}
 
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstall(true);
+const uploadState={sel:null,arcane:'教會祕法',preview:null,note:'',location:'',uploading:false,result:null};
+
+function renderUpload(){const DAILY=state.data.dailyUploads||{arcane:0,beast:0,forbidden:0};const cats=[{id:'arcane',icon:'👁️',label:'祕法血質',desc:'儀式・啟蒙',c:'#9ca3af',r:'156,163,175',pts:5},{id:'beast',icon:'🐺',label:'野獸目擊',desc:'獵殺・狼人',c:'#b91c1c',r:'185,28,28',pts:10},{id:'forbidden',icon:'⛪',label:'禁忌古蹟',desc:'遺跡・墓碑',c:'#475569',r:'71,85,105',pts:15}];const wrap=E('div',{class:'fade-in'});wrap.innerHTML=`<h2 class="section-title">提燈點亮</h2><p class="section-sub">記錄你的獵殺與發現</p>`;
+if(uploadState.result){const r=uploadState.result;wrap.innerHTML+=`<img src="${uploadState.preview}" class="preview-img"><div style="padding:12px;background:rgba(0,0,0,.5);border:1px solid #7f1d1d;border-radius:6px;text-align:center;margin-bottom:10px"><p style="font-family:'Cinzel',serif;color:#fca5a5;font-size:12px;margin-bottom:4px;letter-spacing:1px">夢境反饋</p><p style="color:#d1d5db;font-size:12px;margin-bottom:6px">${r.label} 之果</p><div style="display:flex;justify-content:center;gap:12px;font-size:11px;color:#9ca3af"><span>${r.moon.symbol} ${r.moon.name}</span><span>⏰ ${r.time.name}</span>${r.location?`<span>📍 ${r.location}</span>`:''}</div></div><div style="margin-bottom:10px;padding:12px;border-radius:6px;text-align:center;background:${r.p1>=50?'rgba(185,28,28,.15)':'rgba(0,0,0,.6)'};border:1px solid ${r.p1>=50?'#dc2626':'#4b5563'}"><p style="font-size:16px;font-weight:700;letter-spacing:1px;color:${r.p1>=50?'#fca5a5':'#9ca3af'}">${r.p1>=50?'PREY SLAUGHTERED<br><span style="font-size:12px">✅ 獵殺成功</span>':'YOU DIED<br><span style="font-size:12px">❌ 陷入瘋狂</span>'}</p>${r.p1<50?'<p style="color:#6b7280;font-size:11px;margin-top:6px">在提燈處復活，等待時機</p>':''}</div>${[1,2,3].map(i=>`<div class="oracle-box"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:'Cinzel',serif;font-size:11px;color:#9ca3af">結局 ${i}</span><span style="color:#dc2626;font-weight:700;font-size:12px">${r['p'+i]}%</span></div><p style="color:#d1d5db;font-size:11px;line-height:1.5">${OUTCOMES[r.type][i]}</p><div style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:6px;overflow:hidden"><div style="width:${r['p'+i]}%;height:100%;background:linear-gradient(to right,#7f1d1d,#dc2626)"></div></div></div>`).join('')}`;const back=E('button',{class:'btn btn-muted',style:{marginTop:'16px'}},'↺ 返回夢境');back.onclick=()=>{uploadState.result=null;uploadState.preview=null;uploadState.note='';uploadState.location='';renderTabContent();};wrap.appendChild(back);return wrap;}
+const grid=E('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'8px',marginBottom:'16px'}});cats.forEach(cat=>{const used=DAILY[cat.id]||0;const left=DAILY_LIMITS[cat.id]-used;const card=E('div',{class:'cat-card'+(uploadState.sel===cat.id?' sel':'')});card.innerHTML=`<div style="font-size:24px;margin-bottom:4px;filter:drop-shadow(0 0 5px ${cat.c})">${cat.icon}</div><div style="color:${uploadState.sel===cat.id?'#fca5a5':'#d1d5db'};font-size:11px;font-weight:700;margin-bottom:4px">${cat.label}</div><div style="color:#6b7280;font-size:9px;margin-bottom:8px">${cat.desc}</div><div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap"><span style="background:rgba(${cat.r},.2);border:1px solid rgba(${cat.r},.4);border-radius:4px;padding:2px 6px;color:${cat.c};font-size:9px">+${cat.pts}</span><span style="background:${left===0?'rgba(220,38,38,.1)':'rgba(156,163,175,.1)'};border:1px solid ${left===0?'#7f1d1d':'#4b5563'};border-radius:4px;padding:2px 6px;color:${left===0?'#ef4444':'#9ca3af'};font-size:9px">${left===0?'精疲力竭':'餘'+left}</span></div>`;card.onclick=()=>{uploadState.sel=cat.id;renderTabContent();};grid.appendChild(card);});wrap.appendChild(grid);
+if(uploadState.sel==='arcane'){const magicBox=E('div',{style:{marginBottom:'16px'}});magicBox.innerHTML=`<label style="display:block;color:#fca5a5;font-size:12px;margin-bottom:6px">研究派系</label>`;const sel=E('select');ARCANE_TYPES.forEach(t=>{const opt=E('option',{value:t},t);if(t===uploadState.arcane)opt.selected=true;sel.appendChild(opt);});sel.onchange=e=>uploadState.arcane=e.target.value;magicBox.appendChild(sel);wrap.appendChild(magicBox);}
+if(uploadState.sel==='forbidden'){const locBox=E('div',{style:{marginBottom:'16px'}});locBox.innerHTML=`<label style="display:block;color:#fca5a5;font-size:12px;margin-bottom:6px">📍 墓碑刻字（地名結算）</label>`;const inp=E('input',{type:'text',placeholder:'例：亞南中心、舊亞南、拜爾金沃斯...',maxlength:'30'});inp.value=uploadState.location;inp.oninput=e=>uploadState.location=e.target.value;locBox.appendChild(inp);wrap.appendChild(locBox);}
+if(uploadState.preview){wrap.appendChild(E('img',{src:uploadState.preview,class:'preview-img'}));const rb=E('button',{class:'btn btn-muted btn-sm',style:{marginBottom:'16px'}},'✕ 撕毀照片');rb.onclick=()=>{uploadState.preview=null;renderTabContent();};wrap.appendChild(rb);}else{const photoGrid=E('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginBottom:'16px'}});const galleryInp=E('input',{type:'file',accept:'image/*',id:'gallery-inp'});galleryInp.onchange=e=>handlePhotoSelect(e);const galleryZone=E('div',{class:'up-zone'});galleryZone.innerHTML=`<div style="font-size:30px;margin-bottom:6px;filter:grayscale(1)">🖼️</div><p style="color:#9ca3af;font-size:11px">翻閱舊手札</p>`;galleryZone.onclick=()=>galleryInp.click();galleryZone.appendChild(galleryInp);photoGrid.appendChild(galleryZone);const cameraInp=E('input',{type:'file',accept:'image/*',capture:'environment',id:'camera-inp'});cameraInp.onchange=e=>handlePhotoSelect(e);const cameraZone=E('div',{class:'up-zone'});cameraZone.innerHTML=`<div style="font-size:30px;margin-bottom:6px;filter:grayscale(1)">📷</div><p style="color:#9ca3af;font-size:11px">凝視深淵</p>`;cameraZone.onclick=()=>cameraInp.click();cameraZone.appendChild(cameraInp);photoGrid.appendChild(cameraZone);wrap.appendChild(photoGrid);}
+if(uploadState.preview){const ta=E('textarea',{placeholder:'寫下你陷入瘋狂前的遺言...',style:{minHeight:'70px',marginBottom:'16px'}});ta.value=uploadState.note;ta.oninput=e=>uploadState.note=e.target.value;wrap.appendChild(ta);}
+const btn=E('button',{class:'btn'},(uploadState.uploading?'🩸 聆聽古神低語中...':'🩸 獻上祭品'));btn.disabled=!uploadState.sel||!uploadState.preview||uploadState.uploading;btn.onclick=doUpload;wrap.appendChild(btn);return wrap;}
+
+function handlePhotoSelect(e){const file=e.target.files[0];if(!file)return;if(file.size>10*1024*1024){showNotif('記憶過於沉重（限10MB）');return;}const reader=new FileReader();reader.onload=ev=>{uploadState.preview=ev.target.result;renderTabContent();};reader.readAsDataURL(file);e.target.value='';}
+
+function doUpload(){if(!uploadState.sel||!uploadState.preview)return;const DAILY=state.data.dailyUploads||{arcane:0,beast:0,forbidden:0};const used=DAILY[uploadState.sel]||0;if(used>=DAILY_LIMITS[uploadState.sel]){showNotif(`今日已無力進行此項獵殺`);return;}uploadState.uploading=true;renderTabContent();const labelMap={arcane:uploadState.arcane,beast:'野獸目擊',forbidden:'禁忌探尋'};const qMap={arcane:'祕法是否生效',beast:'是否獵殺成功',forbidden:'是否尋獲遺跡'+(uploadState.location?'+'+uploadState.location:'')};const userName=state.data.customName||'獵人';setTimeout(()=>{const{p1,p2,p3,moon,time}=divineCalc(userName,qMap[uploadState.sel],Date.now()+'');const isSuccess=p1>=50;const pts=isSuccess?(uploadState.sel==='forbidden'?15:uploadState.sel==='beast'?10:5):0;const sel=uploadState.sel;uploadState.result={type:sel,label:labelMap[sel],p1,p2,p3,moon,time,location:uploadState.location,isSuccess};uploadState.uploading=false;const newUpload={id:Date.now(),type:sel,subType:sel==='arcane'?uploadState.arcane:null,label:labelMap[sel],location:uploadState.location||null,preview:uploadState.preview,points:pts,note:uploadState.note,verifiedSuccess:isSuccess,isSuccess,time:new Date().toLocaleString('zh-TW'),timestamp:Date.now(),result:{p1,p2,p3}};updateData(d=>({...d,uploads:[newUpload,...d.uploads],points:d.points+pts,dailyUploads:{...(d.dailyUploads||{arcane:0,beast:0,forbidden:0}),[sel]:isSuccess?(d.dailyUploads?.[sel]||0)+1:(d.dailyUploads?.[sel]||0)},lastUploadDate:new Date().toDateString()}));showNotif(isSuccess?'獵殺成功！+'+pts+' 迴響':'陷入瘋狂，一無所獲');},1800);}
+
+function renderPoints(){const d=state.data;const level=Math.floor(d.points/250)+1;const pct=((d.points-(level-1)*250)/250)*100;const successN=d.uploads.filter(u=>u.type==='forbidden'&&u.verifiedSuccess).length;const weekPts=d.uploads.filter(u=>Date.now()-u.timestamp<7*86400000).reduce((s,u)=>s+u.points,0);const missions=[{name:'墓碑點亮者',need:10,icon:'🏮'},{name:'血源探尋者',need:50,icon:'🩸'},{name:'看見真相之人',need:100,icon:'👁️'}];const wrap=E('div',{class:'fade-in'});const hdr=E('div',{style:{marginBottom:'20px'}});hdr.innerHTML=`<h2 class="section-title">血之迴響</h2>`;wrap.appendChild(hdr);wrap.innerHTML+=`<div style="text-align:center;margin-bottom:24px;padding:24px 12px;position:relative;border-radius:8px;background:rgba(0,0,0,0.6);border:1px solid #7f1d1d;box-shadow:inset 0 0 40px rgba(185,28,28,0.2)"><div style="position:relative;display:flex;flex-direction:column;align-items:center"><div class="spin-ring" style="margin-bottom:16px"><div class="spin-ring-inner">🩸</div></div><div class="grad-text" style="font-family:'Cinzel Decorative',serif;font-size:42px;font-weight:900;line-height:1;margin-bottom:6px">${d.points.toLocaleString()}</div><p style="color:#9ca3af;font-size:12px;letter-spacing:2px">Lv.${level} 獵人階級</p></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px"><div class="card" style="text-align:center;padding:14px"><div style="font-size:20px;margin-bottom:6px;filter:grayscale(1)">🎩</div><div style="font-family:'Cinzel',serif;color:#fca5a5;font-size:16px;font-weight:700">Lv.${level}</div><div style="color:#6b7280;font-size:10px;margin-top:4px">階級</div></div><div class="card" style="text-align:center;padding:14px"><div style="font-size:20px;margin-bottom:6px;filter:grayscale(1)">🪚</div><div style="font-family:'Cinzel',serif;color:#fca5a5;font-size:16px;font-weight:700">${d.uploads.length}</div><div style="color:#6b7280;font-size:10px;margin-top:4px">獵殺數</div></div><div class="card" style="text-align:center;padding:14px"><div style="font-size:20px;margin-bottom:6px;filter:grayscale(1)">🩸</div><div style="font-family:'Cinzel',serif;color:#fca5a5;font-size:16px;font-weight:700">+${weekPts}</div><div style="color:#6b7280;font-size:10px;margin-top:4px">本週汲取</div></div></div><div class="card" style="margin-bottom:20px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9ca3af;font-size:12px">晉升 Lv.${level+1}</span><span style="color:#6b7280;font-size:11px">${d.points} / ${level*250}</span></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden"><div style="width:${Math.min(pct,100)}%;height:100%;background:linear-gradient(to right,#7f1d1d,#dc2626)"></div></div></div>`;const msnDiv=E('div');msnDiv.innerHTML='<p class="sec-label">✦ 獵人宿命任務</p>';missions.forEach(m=>{const prg=Math.min((successN/m.need)*100,100);const done=successN>=m.need;const card=E('div',{class:'card',style:{padding:'14px',marginBottom:'10px'}});card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">${m.icon}</span><span style="font-size:13px;font-weight:700;color:${done?'#fca5a5':'#d1d5db'}">${m.name}${done?' ✓':''}</span></div><span style="font-size:11px;color:#6b7280">${successN}/${m.need}</span></div><div style="height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;margin-bottom:6px"><div style="width:${prg}%;height:100%;background:${done?'linear-gradient(to right,#7f1d1d,#b91c1c)':'#4b5563'}"></div></div><p style="font-size:10px;color:#6b7280">僅採計存活下來的禁忌探尋（解鎖後可佩戴稱號）</p>`;msnDiv.appendChild(card);});wrap.appendChild(msnDiv);return wrap;}
+
+let shopFilter='all';const FILTERS=[{id:'all',label:'全部',icon:'🩸'},{id:'item',label:'道具',icon:'🪚'},{id:'arcane',label:'祕法',icon:'👁️'},{id:'summon',label:'召喚鐘',icon:'🔔'},{id:'title',label:'稱號',icon:'🎩'}];
+
+function renderShop(){const wrap=E('div',{class:'fade-in'});wrap.innerHTML=`<h2 class="section-title">夢魘浴缸信使</h2><p class="section-sub">獻出迴響，獲取狩獵必需品（聯繫管理員）</p>`;const filterBar=E('div',{class:'filter-bar',style:{marginBottom:'16px'}});FILTERS.forEach(f=>{const pill=E('span',{class:'fpill'});pill.style.cssText=`border-color:${shopFilter===f.id?'#dc2626':'rgba(156,163,175,.2)'};background:${shopFilter===f.id?'rgba(185,28,28,.2)':'transparent'};color:${shopFilter===f.id?'#fca5a5':'#9ca3af'}`;pill.textContent=f.icon+' '+f.label;pill.onclick=()=>{shopFilter=f.id;renderTabContent();};filterBar.appendChild(pill);});wrap.appendChild(filterBar);const items=shopFilter==='all'?SHOP:SHOP.filter(i=>i.type===shopFilter);const grid=E('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}});items.forEach(item=>{const owned=state.data.purchased.includes(item.id);const isArcane=item.type==='arcane';const st=checkReq(item.req,state.data);let tagHtml='';if(owned&&!isArcane){tagHtml='<span class="tag" style="background:rgba(185,28,28,.2);border-color:#ef4444;color:#fca5a5">✓ 已擁有</span>';}else if(item.type==='title'&&!st.ok){tagHtml='<span class="tag" style="background:rgba(0,0,0,.6);border-color:#4b5563;color:#9ca3af">🔒 靈視不足</span>';}else{tagHtml=`<span class="tag" style="background:rgba(185,28,28,.1);border-color:#b91c1c;color:#fca5a5">🩸 ${item.cost}</span>`;}const card=E('div',{class:'shop-item'+(owned&&!isArcane?' owned':'')});card.innerHTML=`<div style="font-size:28px;margin-bottom:8px;filter:drop-shadow(0 0 5px rgba(255,0,0,0.3))">${item.icon}</div><div style="color:#e5e7eb;font-size:12px;font-weight:700;margin-bottom:6px">${item.name}</div><div style="color:#9ca3af;font-size:10px;margin-bottom:10px;min-height:28px;line-height:1.4">${item.desc}</div>${tagHtml}`;card.onclick=()=>showBuyModal(item);grid.appendChild(card);});wrap.appendChild(grid);return wrap;}
+
+function showBuyModal(item){const existing=$('buy-modal');if(existing)existing.remove();const st=checkReq(item.req,state.data);const canAfford=state.data.points>=item.cost;const reqHtml=item.req?`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(185,28,28,.3)"><p style="color:${st.ok?'#fca5a5':'#9ca3af'};font-size:12px;margin-bottom:${st.ok?0:4}px">${st.ok?'✅ 已達啟蒙條件':'⚠️ 啟蒙不足'}</p>${!st.ok?`<p style="color:#6b7280;font-size:11px">${st.msg}</p>`:''}</div>`:'';const disableBtn=!canAfford||!st.ok;const btnText=!st.ok?'靈視不足':(!canAfford?'迴響枯竭':'獻上迴響');const modal=E('div',{class:'modal-bg',id:'buy-modal'});modal.innerHTML=`<div class="modal"><div style="font-size:50px;margin-bottom:12px">${item.icon}</div><h3 style="font-size:18px;font-weight:700;margin-bottom:6px;color:#fca5a5">${item.name}</h3><p style="color:#9ca3af;font-size:12px;margin-bottom:16px">${item.desc}</p><div style="background:rgba(0,0,0,.5);border:1px solid #7f1d1d;border-radius:6px;padding:16px;margin-bottom:16px;text-align:left">${reqHtml}<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><p style="color:#9ca3af;font-size:12px">所需代價</p><p style="color:#fca5a5;font-size:18px;font-weight:900">🩸 ${item.cost}</p></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><p style="color:#9ca3af;font-size:12px">持有迴響</p><p style="color:${canAfford?'#d1d5db':'#ef4444'};font-size:14px;font-weight:700">🩸 ${state.data.points}</p></div><div style="border-top:1px solid rgba(185,28,28,.3);padding-top:12px;text-align:center"><p style="color:#6b7280;font-size:11px;margin-bottom:6px">透過烏鴉信使聯絡狩獵長</p><p style="color:#fca5a5;font-family:'Cinzel',serif;font-size:16px;font-weight:700;letter-spacing:2px">db371928356</p><button class="btn btn-muted btn-sm" id="copy-wechat" style="margin-top:8px;padding:6px;font-size:10px">複製聯絡方式</button></div></div><div style="display:flex;gap:10px"><button class="btn btn-sm" id="buy-confirm" ${disableBtn?'disabled':''} style="flex:1">${btnText}</button><button class="btn btn-muted btn-sm" id="buy-cancel" style="flex:1">放棄</button></div></div>`;document.body.appendChild(modal);$('buy-cancel').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove();};$('copy-wechat').onclick=()=>{navigator.clipboard.writeText('db371928356').then(()=>showNotif('信使已就緒 (已複製)'));};if(!disableBtn){$('buy-confirm').onclick=()=>{updateData(d=>({...d,points:d.points-item.cost,purchased:[...d.purchased,item.id]}));modal.remove();showNotif('獲取了「'+item.name+'」');};}}
+
+function renderRecords(){const recs=state.data.uploads;const wrap=E('div',{class:'fade-in'});wrap.innerHTML=`<h2 class="section-title" style="margin-bottom:16px">獵人手札</h2>`;const stats=E('div',{class:'card',style:{background:'rgba(0,0,0,.4)',marginBottom:'16px',display:'flex',justifyContent:'space-around',textAlign:'center',padding:'16px'}});const totalPts=recs.reduce((s,u)=>s+u.points,0);const days=new Set(recs.map(u=>new Date(u.timestamp).toDateString())).size;stats.innerHTML=`<div><div style="font-family:'Cinzel',serif;color:#fca5a5;font-size:22px;font-weight:700">${recs.length}</div><div style="color:#6b7280;font-size:10px;margin-top:4px">出獵次數</div></div><div><div style="font-family:'Cinzel',serif;color:#fca5a5;font-size:22px;font-weight:700">${totalPts}</div><div style="color:#6b7280;font-size:10px;margin-top:4px">總計迴響</div></div><div><div style="font-family:'Cinzel',serif;color:#fca5a5;font-size:22px;font-weight:700">${days}</div><div style="color:#6b7280;font-size:10px;margin-top:4px">夢境夜數</div></div>`;wrap.appendChild(stats);if(recs.length===0){wrap.innerHTML+=`<div style="text-align:center;color:#4b5563;padding:40px 0"><div style="font-size:40px;margin-bottom:12px;opacity:.4">📭</div><p>尚未踏出病房</p></div>`;return wrap;}recs.forEach(rec=>{const card=E('div',{class:'card',style:{display:'flex',gap:'12px',alignItems:'center',padding:'12px',cursor:'pointer',marginBottom:'10px'}});card.innerHTML=`<img src="${rec.preview}" style="width:50px;height:50px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid #4b5563;filter:grayscale(0.5)"><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span class="tag" style="background:rgba(185,28,28,.1);border-color:#b91c1c;color:#fca5a5">${rec.subType||rec.label}</span><div style="display:flex;align-items:center;gap:6px">${rec.isSuccess?'<span style="color:#fca5a5;font-size:10px">✓ 存活</span><span style="color:#fca5a5;font-size:12px;font-weight:700">+'+rec.points+'</span>':'<span style="color:#9ca3af;font-size:10px">✗ 死亡</span><span style="color:#4b5563;font-size:12px;font-weight:700">+0</span>'}</div></div><p style="color:#d1d5db;font-size:12px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rec.note||'無名屍體的遺物'}</p><p style="color:#6b7280;font-size:10px">${rec.time}</p></div>`;card.onclick=()=>showRecordModal(rec);wrap.appendChild(card);});return wrap;}
+
+function showRecordModal(rec){const existing=$('rec-modal');if(existing)existing.remove();const modal=E('div',{class:'modal-bg',id:'rec-modal'});modal.innerHTML=`<div class="modal" style="text-align:left;max-width:380px"><img src="${rec.preview}" style="width:100%;max-height:280px;object-fit:contain;border-radius:4px;margin-bottom:14px;background:#000;border:1px solid #4b5563"><div style="margin-bottom:14px"><div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"><span class="tag" style="background:rgba(185,28,28,.1);border-color:#b91c1c;color:#fca5a5">${rec.subType||rec.label}</span>${rec.isSuccess?'<span class="tag" style="background:rgba(185,28,28,.2);border-color:#ef4444;color:#fca5a5">✓ 獵殺成功</span>':'<span class="tag" style="background:rgba(0,0,0,.6);border-color:#4b5563;color:#9ca3af">✗ 陷入瘋狂 (YOU DIED)</span>'}</div><p style="font-size:14px;color:#e5e7eb;margin-bottom:8px;line-height:1.6">${rec.note||'此處殘留著血跡與不可名狀的氣息。'}</p><p style="color:#6b7280;font-size:11px;margin-bottom:6px">${rec.time}</p><p style="color:${rec.isSuccess?'#fca5a5':'#6b7280'};font-size:13px;font-weight:700">汲取 +${rec.points} 迴響</p></div>${rec.result?`<div class="oracle-box" style="margin-bottom:16px"><p style="color:#fca5a5;font-family:'Cinzel',serif;font-size:12px;margin-bottom:6px">夢境解析</p><p style="color:#9ca3af;font-size:11px">生機 ${rec.result.p1}% · 危機 ${rec.result.p2}% · 死亡 ${rec.result.p3}%</p></div>`:''}<div style="display:flex;gap:10px"><button class="btn btn-muted btn-sm" id="rec-close" style="flex:1">闔上手札</button><button class="btn btn-danger btn-sm" id="rec-del" style="flex:1">抹除記憶</button></div></div>`;document.body.appendChild(modal);$('rec-close').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove();};$('rec-del').onclick=()=>{if(!confirm('確定要抹除這段血腥的記憶？'))return;updateData(d=>({...d,uploads:d.uploads.filter(u=>u.id!==rec.id)}));modal.remove();showNotif('記憶已粉碎');};}
+
+let discussTag='祕法實驗';const DISC_TAGS=[{name:'祕法實驗',c:'#9ca3af'},{name:'野獸目擊',c:'#b91c1c'},{name:'禁忌古蹟',c:'#475569'},{name:'血之建言',c:'#d97706'}];
+
+function renderDiscuss(){
+  const wrap=E('div',{class:'fade-in'});
+  wrap.innerHTML=`<h2 class="section-title">獵人共鳴鐘</h2><p class="section-sub">留下建言，引導或誤導其他獵人</p>`;
+
+  const postCard=E('div',{class:'card',style:{marginBottom:'16px'}});
+  const displayName=state.data.customName||(state.role==='admin'?'狩獵長':'外來者');
+
+  const authorRow=E('div',{style:{display:'flex',alignItems:'center',gap:'10px',marginBottom:'12px'}});
+  authorRow.innerHTML=`<span style="font-size:22px;filter:grayscale(1)">${state.role==='admin'?'🪚':'🎩'}</span><span style="font-family:'Cinzel',serif;color:#fca5a5;font-size:13px">${displayName}</span>`;
+  postCard.appendChild(authorRow);
+
+  const ta=E('textarea',{placeholder:'寫下建言 (例如：前方有埋伏，或是...讚美月亮！)',style:{marginBottom:'12px'}});
+  postCard.appendChild(ta);
+
+  const tagBar=E('div',{style:{display:'flex',gap:'8px',marginBottom:'12px',flexWrap:'wrap'}});
+  DISC_TAGS.forEach(t=>{
+    const pill=E('span',{class:'fpill post-tag'});
+    const isActive=()=>discussTag===t.name;
+    const updateStyle=()=>{pill.style.cssText=`border-color:${isActive()?t.c:'rgba(156,163,175,.2)'};background:${isActive()?t.c+'20':'rgba(0,0,0,.5)'};color:${isActive()?t.c:'#6b7280'};padding:6px 14px;border-radius:4px;font-size:11px;font-family:'Cinzel',serif;cursor:pointer;border:1px solid;transition:all .3s;white-space:nowrap;flex-shrink:0`;};
+    updateStyle();
+    pill.textContent=t.name;
+    pill.onclick=()=>{
+      discussTag=t.name;
+      document.querySelectorAll('.post-tag').forEach(p=>p._update&&p._update());
     };
-    window.addEventListener('beforeinstallprompt', handler);
-    
-    // 檢查是否已安裝
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowInstall(false);
-    }
-    
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstall = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setShowInstall(false);
-      }
-      setDeferredPrompt(null);
-    }
-  };
-
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative" }}>
-      <div style={{ position: "absolute", width: 360, height: 360, borderRadius: "50%", border: "1px solid rgba(139,92,246,.12)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} className="spin-ring" />
-      <div style={{ width: "100%", maxWidth: 380, position: "relative", zIndex: 10 }} className="fade-up">
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 56, marginBottom: 10 }}>🔮</div>
-          <h1 className="grad-text" style={{ fontFamily: "'Cinzel Decorative',serif", fontSize: 24, fontWeight: 900, letterSpacing: 2 }}>玄秘紀元</h1>
-          <p style={{ color: "rgba(167,139,250,.6)", fontFamily: "'Cinzel',serif", fontSize: 10, letterSpacing: 4, marginTop: 6 }}>ARCANE CHRONICLES</p>
-        </div>
-        <div style={{ background: "rgba(8,8,20,.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,.3)", borderRadius: 20, padding: "28px 24px" }}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>帳號</label>
-            <input type="text" placeholder="輸入帳號..." value={u} onChange={e => setU(e.target.value)} onKeyDown={e => e.key === "Enter" && onLogin()} />
-          </div>
-          <div style={{ marginBottom: 22 }}>
-            <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>密碼</label>
-            <input type="password" placeholder="輸入密碼..." value={p} onChange={e => setP(e.target.value)} onKeyDown={e => e.key === "Enter" && onLogin()} />
-          </div>
-          <button className="mbtn" onClick={onLogin}>登入</button>
-          
-          {showInstall && (
-            <button 
-              className="mbtn" 
-              onClick={handleInstall}
-              style={{ marginTop: 12, background: "rgba(139,92,246,.25)" }}
-            >
-              加入桌面
-            </button>
-          )}
-        </div>
-        
-        {/* iOS 安裝提示 */}
-        {/iPhone|iPad|iPod/.test(navigator.userAgent) && !window.navigator.standalone && (
-          <div style={{ marginTop: 16, padding: 14, background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.25)", borderRadius: 12, textAlign: "center" }}>
-            <p style={{ color: "rgba(226,232,240,.7)", fontSize: 11, lineHeight: 1.6 }}>
-              iOS 用戶：點擊 Safari 分享按鈕<br/>
-              然後選擇「加入主畫面」即可安裝
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ═══ 主介面 ═══
-function Main({ tab, setTab, showNotif, role, data, updateData, onLogout }) {
-  const tabs = [
-    { id: "upload", label: "上傳", icon: "📸" },
-    { id: "points", label: "點數", icon: "💎" },
-    { id: "shop", label: "商店", icon: "🛍️" },
-    { id: "records", label: "紀錄", icon: "🗺️" },
-    { id: "discuss", label: "討論", icon: "💬" },
-    { id: "draw", label: "繪圖", icon: "✨" },
-    { id: "profile", label: "檔案", icon: "👤" },
-  ];
-
-  const autoTitles = getAutoTitles(data);
-  const allAvailableItems = [...SHOP_ITEMS, ...autoTitles];
-  const currentTitleObj = data.currentTitle ? allAvailableItems.find(s => s.id === data.currentTitle) : null;
-  
-  const getDisplayName = () => {
-    if (data.customName) return data.customName;
-    return role === "admin" ? "管理員" : "見習術士";
-  };
-  
-  return (
-    <div className="fade-up" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto" }}>
-      <div style={{ padding: "14px 16px 12px", background: "rgba(8,8,20,.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(139,92,246,.15)", position: "sticky", top: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <h1 className="grad-text" style={{ fontFamily: "'Cinzel Decorative',serif", fontSize: 15, letterSpacing: 1 }}>玄秘紀元</h1>
-          <p style={{ color: "rgba(167,139,250,.55)", fontSize: 10, fontFamily: "'Cinzel',serif", letterSpacing: 1, marginTop: 2 }}>
-            {currentTitleObj ? `${currentTitleObj.icon} ${currentTitleObj.name}` : (role === "admin" ? "管理員" : "見習術士")}
-          </p>
-        </div>
-        <div style={{ background: "rgba(139,92,246,.13)", border: "1px solid rgba(139,92,246,.3)", borderRadius: 10, padding: "6px 12px", display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ fontSize: 13 }}>💎</span>
-          <span style={{ color: "#a78bfa", fontFamily: "'Cinzel',serif", fontWeight: 700, fontSize: 15 }}>{data.points.toLocaleString()}</span>
-        </div>
-      </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px" }}>
-        {tab === "upload"  && <Upload showNotif={showNotif} data={data} updateData={updateData} />}
-        {tab === "points"  && <Points data={data} showNotif={showNotif} updateData={updateData} />}
-        {tab === "shop"    && <Shop showNotif={showNotif} data={data} updateData={updateData} />}
-        {tab === "records" && <Records data={data} showNotif={showNotif} updateData={updateData} />}
-        {tab === "discuss" && <Discuss showNotif={showNotif} data={data} updateData={updateData} role={role} />}
-        {tab === "draw"    && <Draw showNotif={showNotif} data={data} updateData={updateData} />}
-        {tab === "profile" && <Profile role={role} data={data} updateData={updateData} onLogout={onLogout} showNotif={showNotif} />}
-      </div>
-      <div className="tabbar">
-        {tabs.map(t => (
-          <div key={t.id} className={`ntab ${tab === t.id ? "on" : ""}`} onClick={() => setTab(t.id)}>
-            <span>{t.icon}</span>
-            <span>{t.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ═══ 上傳 Tab ═══
-function Upload({ showNotif, data, updateData }) {
-  const [sel, setSel] = useState(null);
-  const [magicSubType, setMagicSubType] = useState("白魔法");
-  const [preview, setPreview] = useState(null);
-  const [result, setResult] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [note, setNote] = useState("");
-  const galleryRef = useRef(null);
-  const cameraRef = useRef(null);
-
-  const cats = [
-    { id: "magic", icon: "🧙", label: "魔法道法", desc: "施法・符陣", c: "#8b5cf6", r: "139,92,246", pts: 10 },
-    { id: "creature", icon: "🐉", label: "神秘生物", desc: "靈異生物", c: "#10b981", r: "16,185,129", pts: 15 },
-    { id: "place", icon: "🌙", label: "神秘地點", desc: "廟宇・秘境", c: "#3b82f6", r: "59,130,246", pts: 20 },
-  ];
-  
-  const magicTypes = ["白魔法", "黑魔法", "自然魔法", "古老的紗草紙魔法", "一般魔法"];
-
-  const handleFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setPreview(ev.target.result);
-    reader.readAsDataURL(file);
-  };
-
-  const submit = () => {
-    if (!sel) { showNotif("請先選擇類型"); return; }
-    if (!preview) { showNotif("請先選擇照片"); return; }
-    
-    setUploading(true);
-    const tMap = { magic: magicSubType, creature: "靈體探查", place: "靈地探尋" };
-    const qMap = { magic: "魔法是否成功", creature: "是否拍到生物", place: "是否探到靈地" };
-    
-    setTimeout(() => {
-      const { p1, p2, p3 } = divineCalc("術士", qMap[sel], Date.now().toString());
-      
-      const isVerifiedSuccess = sel === "place" && p1 >= 50;
-
-      const newResult = {
-        type: sel, label: tMap[sel],
-        isVerified: isVerifiedSuccess,
-        o1: { pct: p1, text: getOutcome(sel, 1) },
-        o2: { pct: p2, text: getOutcome(sel, 2) },
-        o3: { pct: p3, text: getOutcome(sel, 3) }
-      };
-      setResult(newResult);
-      
-      const pts = sel === "place" ? 20 : sel === "creature" ? 15 : 10;
-      const newUpload = {
-        id: Date.now(),
-        type: sel, 
-        subType: sel === "magic" ? magicSubType : null,
-        label: tMap[sel],
-        preview, points: pts, note,
-        verifiedSuccess: isVerifiedSuccess,
-        time: new Date().toLocaleString('zh-TW'),
-        timestamp: Date.now(),
-        result: { p1, p2, p3 }
-      };
-      
-      updateData(prev => ({
-        ...prev,
-        uploads: [newUpload, ...prev.uploads],
-        points: prev.points + pts
-      }));
-      
-      if (isVerifiedSuccess) {
-        showNotif("探險驗證成功！+" + pts + " 點並計入任務進度");
-      } else {
-        showNotif("上傳成功！+" + pts + " 點");
-      }
-      setUploading(false);
-    }, 2000);
-  };
-
-  const reset = () => { setResult(null); setSel(null); setPreview(null); setNote(""); };
-
-  return (
-    <div className="tab-in">
-      <h2 style={{ fontFamily: "'Cinzel',serif", fontSize: 17, letterSpacing: 1, marginBottom: 4 }}>探險打卡</h2>
-      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 16 }}>選擇類型，從相簿或相機上傳紀錄</p>
-      
-      {!result ? (
-        <>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-            {cats.map(c => (
-              <div key={c.id} className={`cat-card ${sel === c.id ? "sel" : ""}`} onClick={() => setSel(c.id)} style={{ borderColor: sel === c.id ? c.c : undefined }}>
-                <div style={{ fontSize: 24, marginBottom: 4 }}>{c.icon}</div>
-                <div style={{ color: sel === c.id ? c.c : "rgba(226,232,240,.75)", fontFamily: "'Cinzel',serif", fontSize: 11, fontWeight: 600, marginBottom: 2 }}>{c.label}</div>
-                <div style={{ background: `rgba(${c.r},.18)`, borderRadius: 100, padding: "2px 7px", display: "inline-block", marginTop: 4 }}>
-                  <span style={{ color: c.c, fontSize: 9, fontFamily: "'Cinzel',serif" }}>+{c.pts}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {sel === "magic" && (
-            <div className="fade-up" style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, marginBottom: 6 }}>魔法專精分支</label>
-              <select value={magicSubType} onChange={e => setMagicSubType(e.target.value)}>
-                {magicTypes.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-          )}
-
-          {preview ? (
-            <div style={{ marginBottom: 14 }}>
-              <img src={preview} alt="預覽" className="upload-preview" style={{ marginBottom: 10 }} />
-              <button className="mbtn mbtn-cancel" style={{ padding: "10px", fontSize: 12 }} onClick={() => { setPreview(null); }}>重新選擇照片</button>
-            </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-              <div className="up-zone" onClick={() => galleryRef.current.click()}>
-                <div style={{ fontSize: 30, marginBottom: 6 }}>🖼️</div>
-                <p style={{ color: "rgba(167,139,250,.7)", fontSize: 11 }}>從相簿選擇</p>
-                <input ref={galleryRef} type="file" accept="image/*" onChange={handleFile} style={{ display: "none" }} />
-              </div>
-              <div className="up-zone" onClick={() => cameraRef.current.click()}>
-                <div style={{ fontSize: 30, marginBottom: 6 }}>📷</div>
-                <p style={{ color: "rgba(167,139,250,.7)", fontSize: 11 }}>拍照上傳</p>
-                <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={handleFile} style={{ display: "none" }} />
-              </div>
-            </div>
-          )}
-
-          {preview && (
-            <div style={{ marginBottom: 14 }}>
-              <textarea placeholder="描述你的探險或儀式紀錄..." value={note} onChange={e => setNote(e.target.value)} style={{ minHeight: 60 }} />
-            </div>
-          )}
-
-          <button className="mbtn" onClick={submit} disabled={!sel || !preview || uploading}>
-            {uploading ? "靈界占卜中..." : "提交上傳"}
-          </button>
-        </>
-      ) : (
-        <div className="fade-up">
-          <img src={preview} alt="" className="upload-preview" style={{ marginBottom: 12 }} />
-          <div style={{ padding: 12, background: "rgba(139,92,246,.08)", borderRadius: 10, textAlign: "center", marginBottom: 12 }}>
-            <p style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 11, marginBottom: 6 }}>靈界占卜結果</p>
-            <p style={{ color: "rgba(226,232,240,.7)", fontSize: 12 }}>{result.label} 的反饋</p>
-          </div>
-          
-          {result.type === "place" && (
-            <div style={{ marginBottom: 12, padding: 10, borderRadius: 10, background: result.isVerified ? "rgba(52,211,153,0.12)" : "rgba(239,68,68,0.12)", border: result.isVerified ? "1px solid #34d399" : "1px solid #ef4444", textAlign: 'center' }}>
-              <p style={{ fontSize: 12, color: result.isVerified ? "#34d399" : "#ef4444", fontWeight: 'bold' }}>
-                {result.isVerified ? "經靈界驗證：探險成功！(已計入稱號任務)" : "經靈界驗證：成功能量不足 (不計入次數)"}
-              </p>
-            </div>
-          )}
-
-          {[result.o1, result.o2, result.o3].map((o, i) => (
-            <div key={i} className="oracle-box">
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                <span style={{ fontSize: 11, color: "#a78bfa" }}>可能性 {i + 1}</span>
-                <span style={{ color: "#22d3ee", fontWeight: 700, fontSize: 12 }}>{o.pct}%</span>
-              </div>
-              <p style={{ color: "rgba(226,232,240,.7)", fontSize: 11, lineHeight: 1.5 }}>{o.text}</p>
-            </div>
-          ))}
-          <button className="mbtn mbtn-cancel" onClick={reset} style={{ marginTop: 12 }}>繼續上傳</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ═══ 點數 Tab ═══
-function Points({ data, showNotif, updateData }) {
-  const level = Math.floor(data.points / 250) + 1;
-  const nextLevelPts = level * 250;
-  const progressPct = ((data.points - (level - 1) * 250) / 250) * 100;
-
-  const today = new Date().toDateString();
-  const canCheckIn = data.lastCheckIn !== today;
-
-  const successExplorations = data.uploads.filter(u => u.type === 'place' && u.verifiedSuccess).length;
-
-  const missionList = [
-    { name: "探靈者", count: 10, icon: "👁️" },
-    { name: "尋靈者", count: 50, icon: "🕯️" },
-    { name: "靈界行者", count: 100, icon: "🌀" },
-  ];
-
-  const handleCheckIn = () => {
-    updateData(prev => ({ ...prev, points: prev.points + 1, lastCheckIn: today }));
-    showNotif("每日打卡成功！獲得 1 點");
-  };
-
-  return (
-    <div className="tab-in">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-        <h2 style={{ fontFamily: "'Cinzel',serif", fontSize: 17, letterSpacing: 1 }}>我的神秘點數</h2>
-        <button onClick={canCheckIn ? handleCheckIn : null} style={{
-          background: canCheckIn ? "linear-gradient(135deg,#7c3aed,#0891b2)" : "rgba(139,92,246,.15)",
-          color: canCheckIn ? "#fff" : "rgba(226,232,240,.5)", border: "none", padding: "6px 14px", borderRadius: 100, fontSize: 11, cursor: canCheckIn ? "pointer" : "default"
-        }}>
-          {canCheckIn ? "每日打卡 (+1)" : "今日已打卡"}
-        </button>
-      </div>
-
-      <div style={{ textAlign: "center", marginBottom: 20, padding: "24px 12px", position: "relative", borderRadius: 18, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center,rgba(139,92,246,.14),transparent 70%)" }} />
-        <div style={{ position: "relative" }}>
-          <div style={{ width: 110, height: 110, margin: "0 auto 14px" }}>
-            <div className="spin-ring" style={{ width: 110, height: 110, borderRadius: "50%", padding: 3, background: "conic-gradient(from 0deg,#7c3aed,#0891b2,#a78bfa,#7c3aed)" }}>
-              <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#0d0d1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 30 }}>💎</span>
-              </div>
-            </div>
-          </div>
-          <div className="grad-text" style={{ fontSize: 38, fontWeight: 900, lineHeight: 1, marginBottom: 6 }}>{data.points.toLocaleString()}</div>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          <span style={{ color: "#a78bfa", fontSize: 12 }}>進階到 Lv.{level + 1}</span>
-          <span style={{ color: "rgba(226,232,240,.45)", fontSize: 11 }}>{data.points} / {nextLevelPts}</span>
-        </div>
-        <div style={{ height: 6, background: "rgba(139,92,246,.18)", borderRadius: 3, overflow: "hidden" }}>
-          <div style={{ width: `${Math.min(progressPct, 100)}%`, height: "100%", background: "linear-gradient(to right,#7c3aed,#0891b2)" }} />
-        </div>
-      </div>
-
-      <h3 style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 13, letterSpacing: 1, marginBottom: 10 }}>探險稱號任務區 (不開放販售)</h3>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {missionList.map(m => {
-          const progress = Math.min((successExplorations / m.count) * 100, 100);
-          const isDone = successExplorations >= m.count;
-          return (
-            <div key={m.name} className="card" style={{ padding: 12, opacity: isDone ? 1 : 0.7 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 18 }}>{m.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 'bold', color: isDone ? '#22d3ee' : '#e2e8f0' }}>{m.name}</span>
-                </div>
-                <span style={{ fontSize: 11, color: "rgba(226,232,240,0.5)" }}>
-                  {successExplorations} / {m.count} 次成功
-                </span>
-              </div>
-              <div style={{ height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden", marginBottom: 4 }}>
-                <div style={{ width: `${progress}%`, height: "100%", background: isDone ? "linear-gradient(to right,#10b981,#34d399)" : "linear-gradient(to right,#7c3aed,#0891b2)" }} />
-              </div>
-              <p style={{ fontSize: 10, color: 'rgba(226,232,240,0.35)' }}>驗證成功後自動下發檔案</p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ═══ 商店 Tab ═══
-function Shop({ showNotif, data, updateData }) {
-  const [filter, setFilter] = useState("all");
-  const [modal, setModal] = useState(null);
-
-  const filters = [
-    { id: "all", label: "全部", icon: "✦" },
-    { id: "title", label: "稱號", icon: "👑" },
-    { id: "magic", label: "魔法", icon: "✨" },
-    { id: "summon", label: "召喚", icon: "🦊" },
-    { id: "item", label: "道具", icon: "📜" },
-  ];
-
-  const filtered = SHOP_ITEMS.filter(i => filter === "all" || i.type === filter);
-
-  const checkReq = (req) => {
-    if (!req) return { ok: true, msg: "" };
-    if (req.type === 'hasItems') {
-      const hasAll = req.items.every(id => data.purchased.includes(id));
-      return { ok: hasAll, msg: "需先獲得金木水雷四象內練術" };
-    }
-    if (req.type === 'magicUse') {
-      const count = data.uploads.filter(u => u.subType === req.target).length;
-      return { ok: count >= req.count, msg: "需成功施展「" + req.target + "」" + req.count + " 次 (目前: " + count + ")" };
-    }
-    if (req.type === 'drawUse') {
-      const count = data.drawings.filter(d => d.subType === req.target).length;
-      return { ok: count >= req.count, msg: "需成功繪製「" + req.target + "」" + req.count + " 次 (目前: " + count + ")" };
-    }
-    return { ok: true, msg: "" };
-  };
-
-  const buy = (item) => {
-    if (item.type !== "magic" && data.purchased.includes(item.id)) { showNotif("已擁有"); return; }
-    setModal(item);
-  };
-
-  const confirm = (item) => {
-    const status = checkReq(item.req);
-    if (!status.ok) { showNotif("條件未達成: " + status.msg); return; }
-    if (data.points < item.cost) { showNotif("神秘點數不足！"); setModal(null); return; }
-    
-    updateData(prev => ({
-      ...prev,
-      points: prev.points - item.cost,
-      purchased: [...prev.purchased, item.id]
-    }));
-    setModal(null);
-    showNotif("成功解鎖「" + item.name + "」！");
-  };
-
-  return (
-    <div className="tab-in">
-      <h2 style={{ fontSize: 17, letterSpacing: 1, marginBottom: 4 }}>神秘兌換商店</h2>
-      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 14 }}>消耗點數兌換神秘力量與進階稱號</p>
-
-      <div className="filter-bar" style={{ marginBottom: 14 }}>
-        {filters.map(f => (
-          <span key={f.id} className="fpill" onClick={() => setFilter(f.id)} style={{
-            borderColor: filter === f.id ? "rgba(167,139,250,.7)" : "rgba(139,92,246,.2)",
-            background: filter === f.id ? "rgba(139,92,246,.2)" : "transparent",
-            color: filter === f.id ? "#a78bfa" : "rgba(226,232,240,.45)",
-          }}>{f.icon} {f.label}</span>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {filtered.map(item => {
-          const owned = data.purchased.includes(item.id);
-          const isMagic = item.type === "magic";
-          const ownedCount = data.purchased.filter(id => id === item.id).length;
-          
-          return (
-            <div key={item.id} className={`shop-item ${owned && !isMagic ? "owned" : ""}`} onClick={() => buy(item)}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 26, marginBottom: 6 }}>{item.icon}</div>
-                <div style={{ color: "#e2e8f0", fontSize: 11, fontWeight: 600, marginBottom: 4 }}>{item.name}</div>
-                <div style={{ color: "rgba(226,232,240,.4)", fontSize: 9, marginBottom: 6, minHeight: 24 }}>{item.desc}</div>
-                {owned && !isMagic ? (
-                  <span className="tag" style={{ background: "rgba(52,211,153,.14)", border: "1px solid rgba(52,211,153,.3)", color: "#34d399" }}>已解鎖</span>
-                ) : (
-                  <span className="tag" style={{ background: "rgba(245,158,11,.14)", border: "1px solid rgba(245,158,11,.3)", color: "#fbbf24" }}>
-                    💎 {item.cost} {isMagic && ownedCount > 0 && "(" + toChineseNum(ownedCount) + "次)"}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {modal && (
-        <BuyModal 
-          item={modal} 
-          status={checkReq(modal.req)}
-          onConfirm={() => confirm(modal)} 
-          onCancel={() => setModal(null)} 
-        />
-      )}
-    </div>
-  );
-}
-
-function BuyModal({ item, status, onConfirm, onCancel }) {
-  return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-box" onClick={e => e.stopPropagation()}>
-        <div style={{ fontSize: 50, marginBottom: 12 }}>{item.icon}</div>
-        <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>{item.name}</h3>
-        <p style={{ color: "rgba(226,232,240,.5)", fontSize: 11, marginBottom: 16 }}>{item.desc}</p>
-        
-        <div style={{ background: "rgba(139,92,246,.1)", borderRadius: 12, padding: 12, marginBottom: 16 }}>
-          {item.req && (
-            <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid rgba(139,92,246,.2)" }}>
-              <p style={{ color: status.ok ? "#34d399" : "#fbbf24", fontSize: 11 }}>
-                {status.ok ? "驗證通過" : "驗證未通過"}
-              </p>
-              <p style={{ color: "rgba(226,232,240,.6)", fontSize: 10, marginTop: 4 }}>{status.msg}</p>
-            </div>
-          )}
-          <p style={{ color: "rgba(226,232,240,.6)", fontSize: 11, marginBottom: 4 }}>所需點數</p>
-          <p style={{ color: "#fbbf24", fontSize: 22, fontWeight: 900 }}>💎 {item.cost}</p>
-        </div>
-        
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="mbtn" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={onConfirm} disabled={!status.ok}>
-            {status.ok ? "確定兌換" : "未達條件"}
-          </button>
-          <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={onCancel}>取消</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══ 紀錄 Tab ═══
-function Records({ data, showNotif, updateData }) {
-  const [viewItem, setViewItem] = useState(null);
-
-  const allRecs = data.uploads.map(u => ({ ...u }));
-
-  const deleteRec = (id) => {
-    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
-    updateData(prev => ({ ...prev, uploads: prev.uploads.filter(u => u.id !== id) }));
-    setViewItem(null);
-    showNotif("已刪除");
-  };
-
-  return (
-    <div className="tab-in">
-      <h2 style={{ fontSize: 17, letterSpacing: 1, marginBottom: 14 }}>探險紀錄</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {allRecs.length === 0 ? <p style={{textAlign:"center", color:"#666", marginTop: 40}}>尚未有紀錄</p> : 
-         allRecs.map(rec => (
-          <div key={rec.id} className="card" style={{ display: "flex", gap: 12, alignItems: "center", cursor: "pointer", padding: 12 }} onClick={() => setViewItem(rec)}>
-            <img src={rec.preview} alt="" style={{ width: 50, height: 50, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                <span className="tag" style={{ background: "rgba(139,92,246,.14)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa" }}>{rec.subType || rec.label}</span>
-                <span style={{ color: "#34d399", fontSize: 12, fontWeight: 700 }}>+{rec.points}</span>
-              </div>
-              <p style={{ color: "rgba(226,232,240,.8)", fontSize: 12, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {rec.note || "探索紀錄"} {rec.verifiedSuccess && "驗證成功"}
-              </p>
-              <p style={{ color: "rgba(226,232,240,.32)", fontSize: 10 }}>{rec.time}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {viewItem && (
-        <div className="modal-overlay" onClick={() => setViewItem(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 380 }}>
-            <img src={viewItem.preview} alt="" style={{ width: "100%", maxHeight: 300, objectFit: "contain", borderRadius: 10, marginBottom: 12, background: "rgba(0,0,0,.3)" }} />
-            <div style={{ textAlign: "left", marginBottom: 12 }}>
-              <span className="tag" style={{ background: "rgba(139,92,246,.14)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa", marginBottom: 8, display: "inline-block" }}>{viewItem.subType || viewItem.label}</span>
-              {viewItem.verifiedSuccess && <span className="tag" style={{ background: "rgba(52,211,153,.14)", border: "1px solid rgba(52,211,153,.3)", color: "#34d399", marginBottom: 8, marginLeft: 6, display: "inline-block" }}>驗證成功</span>}
-              <h3 style={{ fontSize: 15, marginBottom: 6, color: "#e2e8f0" }}>{viewItem.note || "探索紀錄"}</h3>
-              <p style={{ color: "rgba(226,232,240,.5)", fontSize: 11, marginBottom: 4 }}>{viewItem.time}</p>
-              <p style={{ color: "#34d399", fontSize: 12, fontWeight: 700 }}>獲得 +{viewItem.points} 點</p>
-            </div>
-            {viewItem.result && (
-              <div style={{ background: "rgba(139,92,246,.08)", borderRadius: 10, padding: 10, marginBottom: 12, textAlign: "left" }}>
-                <p style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 11, marginBottom: 6 }}>占卜結果</p>
-                <p style={{ fontSize: 10, color: "rgba(226,232,240,.6)" }}>成功 {viewItem.result.p1}% / 中等 {viewItem.result.p2}% / 困難 {viewItem.result.p3}%</p>
-              </div>
-            )}
-            <div style={{ display: "flex", gap: 8 }}>
-              <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => setViewItem(null)}>關閉</button>
-              <button className="mbtn mbtn-danger" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => deleteRec(viewItem.id)}>刪除</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ═══ 討論 Tab ═══
-function Discuss({ showNotif, data, updateData, role }) {
-  const [post, setPost] = useState("");
-  const [tag, setTag] = useState("魔法道法");
-  const [viewPost, setViewPost] = useState(null);
-
-  const tags = [
-    { name: "魔法道法", color: "#8b5cf6" },
-    { name: "神秘生物", color: "#10b981" },
-    { name: "神秘地點", color: "#3b82f6" },
-    { name: "攻略", color: "#f59e0b" },
-  ];
-
-  const getDisplayName = () => {
-    if (data.customName) return data.customName;
-    return role === "admin" ? "管理員" : "見習術士";
-  };
-
-  const submit = () => {
-    if (!post.trim()) { showNotif("請輸入內容"); return; }
-    const tagObj = tags.find(t => t.name === tag);
-    const newPost = {
-      id: Date.now(),
-      user: getDisplayName(),
-      avatar: role === "admin" ? "⚔️" : "🧙",
-      title: post,
-      replies: 0,
-      likes: 0,
-      time: "剛剛",
-      tag: tag,
-      tc: tagObj.color,
-      isMine: true
-    };
-    updateData(prev => ({ ...prev, posts: [newPost, ...prev.posts] }));
-    setPost("");
-    showNotif("貼文已發布！");
-  };
-
-  const like = (id) => {
-    updateData(prev => ({
-      ...prev,
-      posts: prev.posts.map(p => p.id === id ? { ...p, likes: p.likes + 1, liked: !p.liked } : p)
-    }));
-  };
-
-  const deletePost = (id) => {
-    if (!confirm("確定刪除這則貼文嗎？")) return;
-    updateData(prev => ({ ...prev, posts: prev.posts.filter(p => p.id !== id) }));
-    setViewPost(null);
-    showNotif("已刪除");
-  };
-
-  const allPosts = data.posts;
-
-  return (
-    <div className="tab-in">
-      <h2 style={{ fontFamily: "'Cinzel',serif", fontSize: 17, letterSpacing: 1, marginBottom: 4 }}>公共討論區</h2>
-      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 14 }}>與同道術士們交流</p>
-      
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-          <span style={{ fontSize: 20 }}>{role === "admin" ? "⚔️" : "🧙"}</span>
-          <span style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 12 }}>{getDisplayName()}</span>
-        </div>
-        <textarea placeholder="分享你的探險心得或提問..." value={post} onChange={e => setPost(e.target.value)} style={{ marginBottom: 10 }} />
-        <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
-          {tags.map(t => (
-            <span key={t.name} onClick={() => setTag(t.name)} className="fpill" style={{
-              borderColor: tag === t.name ? t.color : "rgba(139,92,246,.2)",
-              background: tag === t.name ? t.color + "20" : "transparent",
-              color: tag === t.name ? t.color : "rgba(226,232,240,.5)",
-            }}>{t.name}</span>
-          ))}
-        </div>
-        <button className="mbtn" style={{ padding: 10, fontSize: 12 }} onClick={submit}>發布貼文</button>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {allPosts.length === 0 ? (
-          <p style={{textAlign:"center", color:"rgba(226,232,240,.4)", marginTop: 20}}>目前尚無任何討論串，快來發布第一篇貼文吧！</p>
-        ) : (
-          allPosts.map(d => (
-            <div key={d.id} className="card" style={{ padding: 14, cursor: "pointer" }} onClick={() => setViewPost(d)}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 20 }}>{d.avatar}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                    <span style={{ fontFamily: "'Cinzel',serif", color: "#e2e8f0", fontSize: 11 }}>{d.user}</span>
-                    <span className="tag" style={{ background: d.tc + "20", border: "1px solid " + d.tc + "40", color: d.tc }}>{d.tag}</span>
-                    {d.isMine && <span className="tag" style={{ background: "rgba(245,158,11,.14)", border: "1px solid rgba(245,158,11,.3)", color: "#fbbf24" }}>我的</span>}
-                  </div>
-                  <span style={{ color: "rgba(226,232,240,.32)", fontSize: 10 }}>{d.time}</span>
-                </div>
-              </div>
-              <p style={{ color: "rgba(226,232,240,.83)", fontSize: 12, marginBottom: 10, lineHeight: 1.5 }}>{d.title}</p>
-              <div style={{ display: "flex", gap: 14 }}>
-                <span style={{ color: "rgba(226,232,240,.38)", fontSize: 11 }}>💬 {d.replies}</span>
-                <span style={{ color: d.liked ? "#ef4444" : "rgba(226,232,240,.38)", fontSize: 11, cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); like(d.id); }}>❤️ {d.likes}</span>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {viewPost && (
-        <div className="modal-overlay" onClick={() => setViewPost(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ textAlign: "left" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <span style={{ fontSize: 30 }}>{viewPost.avatar}</span>
-              <div>
-                <p style={{ fontFamily: "'Cinzel',serif", color: "#a78bfa", fontSize: 13 }}>{viewPost.user}</p>
-                <p style={{ color: "rgba(226,232,240,.32)", fontSize: 10 }}>{viewPost.time}</p>
-              </div>
-            </div>
-            <span className="tag" style={{ background: viewPost.tc + "20", border: "1px solid " + viewPost.tc + "40", color: viewPost.tc, marginBottom: 10, display: "inline-block" }}>{viewPost.tag}</span>
-            <p style={{ color: "#e2e8f0", fontSize: 14, lineHeight: 1.7, marginBottom: 14 }}>{viewPost.title}</p>
-            <div style={{ display: "flex", gap: 18, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(139,92,246,.15)" }}>
-              <span style={{ color: "rgba(226,232,240,.6)", fontSize: 12 }}>💬 {viewPost.replies}</span>
-              <span style={{ color: viewPost.liked ? "#ef4444" : "rgba(226,232,240,.6)", fontSize: 12, cursor: "pointer" }} onClick={() => like(viewPost.id)}>❤️ {viewPost.likes}</span>
-            </div>
-            {viewPost.isMine ? (
-              <div style={{ display: "flex", gap: 8 }}>
-                <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => setViewPost(null)}>關閉</button>
-                <button className="mbtn mbtn-danger" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => deletePost(viewPost.id)}>刪除</button>
-              </div>
-            ) : (
-              <button className="mbtn mbtn-cancel" style={{ padding: 10, fontSize: 12 }} onClick={() => setViewPost(null)}>關閉</button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ═══ 繪圖 Tab ═══
-function Draw({ showNotif, data, updateData }) {
-  const canvasRef = useRef(null);
-  const [drawing, setDrawing] = useState(false);
-  const [color, setColor] = useState("#a78bfa");
-  const [size, setSize] = useState(4);
-  const [mode, setMode] = useState("draw");
-  const [drawType, setDrawType] = useState("一般魔法陣");
-
-  const colors = ["#a78bfa", "#06b6d4", "#f59e0b", "#ef4444", "#10b981", "#ffffff"];
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) { canvas.getContext('2d').fillRect(0, 0, canvas.width, canvas.height); }
-  }, []);
-
-  const getPos = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
-    const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
-    return { x: x * (canvasRef.current.width / rect.width), y: y * (canvasRef.current.height / rect.height) };
-  };
-
-  const start = (e) => { e.preventDefault(); const {x,y} = getPos(e); const ctx = canvasRef.current.getContext('2d'); ctx.beginPath(); ctx.moveTo(x,y); setDrawing(true); };
-  const move = (e) => { if(!drawing) return; e.preventDefault(); const ctx = canvasRef.current.getContext('2d'); ctx.lineWidth=size; ctx.lineCap="round"; ctx.strokeStyle = mode==="erase"?"#0d0d1a":color; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); };
-  const end = () => setDrawing(false);
-  const clear = () => { canvasRef.current.getContext('2d').fillRect(0, 0, 800, 500); };
-
-  const submit = () => {
-    const pts = data.todayDrawPts < 25 ? 5 : 0;
-    const newDrawing = { id: Date.now(), image: canvasRef.current.toDataURL(), subType: drawType, time: new Date().toLocaleDateString() };
-    updateData(prev => ({
-      ...prev,
-      drawings: [newDrawing, ...prev.drawings],
-      todayDrawPts: prev.todayDrawPts + pts,
-      points: prev.points + pts,
-      lastDrawDate: new Date().toDateString()
-    }));
-    showNotif(pts > 0 ? "繪圖提交成功！+5 點" : "繪圖紀錄已保存 (成就+1)");
-    clear();
-  };
-
-  return (
-    <div className="tab-in">
-      <h2 style={{ fontSize: 17, marginBottom: 4 }}>魔法陣繪製</h2>
-      <p style={{ color: "rgba(226,232,240,.45)", fontSize: 12, marginBottom: 12 }}>每日限得25點，但可無限繪製解鎖成就</p>
-      
-      <div className="fade-up" style={{ marginBottom: 10 }}>
-        <label style={{ display: "block", color: "rgba(167,139,250,.8)", fontSize: 11, marginBottom: 6 }}>選擇繪製目標</label>
-        <select value={drawType} onChange={e => setDrawType(e.target.value)}>
-          <option value="一般魔法陣">一般魔法陣</option>
-          <option value="盧恩符文">盧恩符文</option>
-          <option value="符籙">符籙</option>
-        </select>
-      </div>
-
-      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-        {colors.map(c => (
-          <button key={c} onClick={() => { setColor(c); setMode("draw"); }} style={{ width: 32, height: 32, borderRadius: 6, background: c, border: (color === c && mode === "draw") ? "2px solid #fff" : "none" }} />
-        ))}
-        <button onClick={() => setMode("erase")} style={{ minWidth: 40, height: 32, borderRadius: 6, background: "rgba(139,92,246,.2)", color: "#fff", border: mode==="erase"?"2px solid #fff":"none" }}>橡皮</button>
-      </div>
-
-      <canvas ref={canvasRef} width={800} height={500} onMouseDown={start} onMouseMove={move} onMouseUp={end} onMouseLeave={end} onTouchStart={start} onTouchMove={move} onTouchEnd={end} style={{ border: "2px solid rgba(139,92,246,.3)", borderRadius: 10, width: "100%", touchAction: "none", marginBottom: 12 }} />
-      <button className="mbtn" onClick={submit}>提交 {drawType}</button>
-    </div>
-  );
-}
-
-// ═══ 個人檔案 Tab ═══
-function Profile({ role, data, updateData, onLogout, showNotif }) {
-  const [showTitleSelect, setShowTitleSelect] = useState(false);
-  const [showNameModal, setShowNameModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  
-  const autoTitles = getAutoTitles(data);
-  const allAvailableTitles = [...SHOP_ITEMS.filter(i => data.purchased.includes(i.id) && i.type === "title"), ...autoTitles];
-  
-  const magicCounts = {};
-  data.purchased.forEach(id => {
-    const item = SHOP_ITEMS.find(i => i.id === id && i.type === "magic");
-    if (item) { magicCounts[item.name] = (magicCounts[item.name] || 0) + 1; }
+    pill._update=updateStyle;
+    tagBar.appendChild(pill);
   });
+  postCard.appendChild(tagBar);
 
-  const purchasedOtherItems = SHOP_ITEMS.filter(i => data.purchased.includes(i.id) && i.type !== "title" && i.type !== "magic");
-  const currentTitleObj = data.currentTitle ? [...SHOP_ITEMS, ...autoTitles].find(s => s.id === data.currentTitle) : null;
-  const level = Math.floor(data.points / 250) + 1;
-
-  const getDisplayName = () => {
-    if (data.customName) return data.customName;
-    return role === "admin" ? "管理員" : "見習術士";
+  const postBtn=E('button',{class:'btn btn-sm'},'🩸 留下建言');
+  postBtn.onclick=()=>{
+    const txt=ta.value.trim();
+    if(!txt){showNotif('建言不可為空');return;}
+    const tc=DISC_TAGS.find(t=>t.name===discussTag).c;
+    const newPost={id:Date.now(),user:displayName,avatar:state.role==='admin'?'🪚':'🎩',title:txt,replies:0,likes:0,liked:false,time:'剛剛',tag:discussTag,tc,isMine:true};
+    // 更新並觸發 localStorage 儲存
+    updateData(d=>({
+      ...d,
+      posts: d.posts ? [newPost, ...d.posts] : [newPost]
+    }));
+    ta.value='';
+    showNotif('建言已迴響於夢境');
   };
+  postCard.appendChild(postBtn);
+  wrap.appendChild(postCard);
 
-  const setTitle = (id) => { updateData(prev => ({ ...prev, currentTitle: id })); setShowTitleSelect(false); };
-  const resetAll = () => { 
-    if(confirm("確定重置所有數據？這將清除你的所有進度。")) {
-      updateData({ ...defaultData, joinDate: new Date().toLocaleDateString('zh-TW'), lastDrawDate: new Date().toDateString(), isFirstLogin: true, customName: null });
-      showNotif("數據已重置");
-    }
-  };
-
-  const handleNameChange = () => {
-    if (!newName.trim()) { showNotif("請輸入名稱"); return; }
-    if (newName.trim().length > 12) { showNotif("名稱不能超過12字"); return; }
-    updateData(prev => ({ ...prev, customName: newName.trim() }));
-    setShowNameModal(false);
-    setNewName("");
-    showNotif("名稱已更改！");
-  };
-
-  return (
-    <div className="tab-in">
-      <h2 style={{ fontSize: 17, marginBottom: 18 }}>個人檔案</h2>
-      
-      <div className="card" style={{ background: "rgba(139,92,246,.08)", marginBottom: 14, textAlign: "center" }}>
-        <div style={{ fontSize: 44, marginBottom: 10 }}>{role === "admin" ? "⚔️" : "🧙"}</div>
-        <h3 style={{ fontSize: 19, color: "#a78bfa" }}>{getDisplayName()}</h3>
-        <p style={{ color: "rgba(226,232,240,.6)", fontSize: 12, marginBottom: 14 }}>
-          {currentTitleObj ? currentTitleObj.icon + " " + currentTitleObj.name : "見習魔法師"}
-        </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-          <div><p style={{ color: "#a78bfa", fontSize: 10 }}>等級</p><p style={{ fontSize: 15, fontWeight: 700 }}>Lv.{level}</p></div>
-          <div><p style={{ color: "#a78bfa", fontSize: 10 }}>點數</p><p style={{ fontSize: 15, fontWeight: 700 }}>{data.points}</p></div>
-          <div><p style={{ color: "#a78bfa", fontSize: 10 }}>稱號</p><p style={{ fontSize: 15, fontWeight: 700 }}>{allAvailableTitles.length}</p></div>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-          <h3 style={{ color: "#a78bfa", fontSize: 12 }}>名稱設定</h3>
-          <button onClick={() => { setNewName(data.customName || ""); setShowNameModal(true); }} style={{ background: "rgba(139,92,246,.2)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa", padding: "4px 10px", borderRadius: 6, fontSize: 10 }}>更改名稱</button>
-        </div>
-        <p style={{ fontSize: 12, color: "#e2e8f0" }}>{getDisplayName()}</p>
-      </div>
-
-      <div className="card" style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-          <h3 style={{ color: "#a78bfa", fontSize: 12 }}>當前稱號</h3>
-          <button onClick={() => setShowTitleSelect(true)} style={{ background: "rgba(139,92,246,.2)", border: "1px solid rgba(139,92,246,.3)", color: "#a78bfa", padding: "4px 10px", borderRadius: 6, fontSize: 10 }}>切換</button>
-        </div>
-        {currentTitleObj ? (
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <span style={{ fontSize: 22 }}>{currentTitleObj.icon}</span>
-            <div><p style={{ color: "#a78bfa", fontSize: 12 }}>{currentTitleObj.name}</p><p style={{ color: "rgba(226,232,240,.4)", fontSize: 10 }}>{currentTitleObj.desc}</p></div>
-          </div>
-        ) : <p style={{ fontSize: 11, color: "#666" }}>未配戴稱號</p>}
-      </div>
-
-      <div className="card" style={{ marginBottom: 12 }}>
-        <h3 style={{ color: "#a78bfa", fontSize: 12, marginBottom: 10 }}>已學魔法</h3>
-        {Object.keys(magicCounts).length === 0 ? (
-          <p style={{ fontSize: 11, color: "#666", textAlign: "center", padding: 8 }}>尚未修煉任何魔法</p>
-        ) : (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {Object.entries(magicCounts).map(([name, count]) => (
-              <span key={name} className="tag" style={{ background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.25)", color: "#a78bfa", padding: "4px 10px", fontSize: 11 }}>
-                {name} {toChineseNum(count)}種
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {purchasedOtherItems.length > 0 && (
-        <div className="card" style={{ marginBottom: 12 }}>
-          <h3 style={{ color: "#a78bfa", fontSize: 12, marginBottom: 10 }}>已解鎖技能/召喚術</h3>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {purchasedOtherItems.map(item => (
-              <span key={item.id} className="tag" style={{ background: "rgba(139,92,246,.1)", border: "1px solid rgba(139,92,246,.25)", color: "#a78bfa" }}>
-                {item.icon} {item.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <button className="mbtn" style={{ background: "rgba(139,92,246,.2)", marginBottom: 8 }} onClick={onLogout}>登出</button>
-      <button className="mbtn mbtn-danger" onClick={resetAll}>重置所有數據</button>
-
-      {showTitleSelect && (
-        <div className="modal-overlay" onClick={() => setShowTitleSelect(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ textAlign: "left" }}>
-            <h3 style={{ fontSize: 15, marginBottom: 14, textAlign: "center" }}>選擇配戴稱號</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14, maxHeight: "60vh", overflowY: "auto" }}>
-              {allAvailableTitles.map(item => (
-                <div key={item.id} onClick={() => setTitle(item.id)} style={{ padding: 10, background: "rgba(139,92,246,.1)", border: "1px solid #a78bfa", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 22 }}>{item.icon}</span>
-                  <div><p style={{ color: "#a78bfa", fontSize: 12 }}>{item.name}</p></div>
-                </div>
-              ))}
-            </div>
-            <button className="mbtn" onClick={() => { updateData(prev=>({...prev, currentTitle: null})); setShowTitleSelect(false); }}>卸下稱號</button>
-          </div>
-        </div>
-      )}
-
-      {showNameModal && (
-        <div className="modal-overlay" onClick={() => setShowNameModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: 15, marginBottom: 14 }}>更改名稱</h3>
-            <input 
-              type="text" 
-              placeholder="輸入新名稱 (最多12字)..." 
-              value={newName} 
-              onChange={e => setNewName(e.target.value)} 
-              onKeyDown={e => e.key === "Enter" && handleNameChange()}
-              maxLength={12}
-              style={{ marginBottom: 14 }}
-            />
-            <div style={{ display: "flex", gap: 8 }}>
-              <button className="mbtn" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={handleNameChange}>確定</button>
-              <button className="mbtn mbtn-cancel" style={{ flex: 1, padding: 10, fontSize: 12 }} onClick={() => setShowNameModal(false)}>取消</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  const posts=state.data.posts || [];
+  if(posts.length===0){
+    const empty=E('div',{style:{textAlign:'center',color:'#4b5563',padding:'30px 0',fontSize:'12px'}});
+    empty.textContent='周圍沒有其他獵人的氣息...';
+    wrap.appendChild(empty);
+    return wrap;
+  }
+  posts.forEach(post=>{
+    const card=E('div',{class:'disc-card',style:{marginBottom:'10px',cursor:'pointer'}});
+    card.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="font-size:20px;filter:grayscale(1)">${post.avatar}</span><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-family:'Cinzel',serif;color:#d1d5db;font-size:12px">${post.user}</span><span class="tag" style="background:${post.tc}20;border-color:${post.tc}40;color:${post.tc}">${post.tag}</span>${post.isMine?'<span class="tag" style="background:rgba(185,28,28,.1);border-color:#b91c1c;color:#fca5a5">我的建言</span>':''}</div><span style="color:#6b7280;font-size:10px">${post.time}</span></div></div><p style="color:#e5e7eb;font-size:13px;margin-bottom:12px;line-height:1.6;font-style:italic">"${post.title}"</p><div style="display:flex;gap:16px"><span style="color:#6b7280;font-size:12px">🔔 ${post.replies}</span><span class="like-btn" style="color:${post.liked?'#dc2626':'#6b7280'};font-size:12px;cursor:pointer;transition:color 0.3s">評分好意 ${post.likes}</span></div>`;
+    card.querySelector('.like-btn').onclick=e=>{
+      e.stopPropagation();
+      updateData(d=>({...d,posts:d.posts.map(p=>p.id===post.id?{...p,likes:p.liked?p.likes-1:p.likes+1,liked:!p.liked}:p)}));
+    };
+    card.onclick=()=>showDiscModal(post);
+    wrap.appendChild(card);
+  });
+  return wrap;
 }
 
-const CSS = `
-.particle{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.8),rgba(6,182,212,.3));animation:floatUp linear infinite;pointer-events:none;}
-@keyframes floatUp{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:.9;}90%{opacity:.4;}100%{transform:translateY(-10vh) scale(1);opacity:0;}}
-@keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
-@keyframes starBlink{0%,100%{opacity:.25;}50%{opacity:1;}}
-.fade-up{animation:fadeUp .6s ease forwards;}
-.tab-in{animation:fadeUp .35s ease forwards;}
-input,textarea,select{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);color:#e2e8f0;padding:12px 14px;border-radius:10px;width:100%;font-family:'Raleway',sans-serif;font-size:14px;outline:none;transition:all .3s;}
-input:focus,textarea:focus,select:focus{border-color:rgba(139,92,246,.8);box-shadow:0 0 24px rgba(139,92,246,.25);}
-textarea{resize:none;min-height:90px;}
-.mbtn{background:linear-gradient(135deg,#7c3aed,#0891b2);border:none;color:#fff;padding:13px 28px;border-radius:10px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;cursor:pointer;width:100%;transition:all .3s;}
-.mbtn:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(124,58,237,.5);}
-.mbtn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-.mbtn-cancel{background:rgba(139,92,246,.25)!important;}
-.mbtn-danger{background:linear-gradient(135deg,#dc2626,#991b1b)!important;}
-.ntab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;border-radius:10px;cursor:pointer;transition:all .3s;color:rgba(226,232,240,.4);font-family:'Cinzel',serif;border:1px solid transparent;flex:1;}
-.ntab.on{color:#a78bfa;background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3);}
-.ntab span:first-child{font-size:18px;}
-.ntab span:last-child{font-size:9px;}
-.card{background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.18);border-radius:14px;padding:16px;transition:all .3s;}
-.cat-card{border:2px solid rgba(139,92,246,.18);border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(255,255,255,.015);}
-.cat-card.sel{border-color:#a78bfa;background:rgba(139,92,246,.12);transform:translateY(-3px);}
-.up-zone{border:2px dashed rgba(139,92,246,.35);border-radius:14px;padding:22px 12px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(139,92,246,.04);}
-.oracle-box{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:12px;margin:8px 0;}
-.shop-item{background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.18);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s;}
-.shop-item.owned{opacity:.7;border-color:rgba(52,211,153,.4);}
-.tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-family:'Cinzel',serif;}
-.notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(124,58,237,.92),rgba(8,145,178,.92));color:#fff;padding:11px 24px;border-radius:100px;font-size:12px;z-index:9999;backdrop-filter:blur(12px);max-width:90vw;text-align:center;}
-.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;}
-.modal-box{background:rgba(8,8,20,.95);border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:24px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 60px rgba(139,92,246,.2);}
-.upload-preview{width:100%;max-height:280px;border-radius:10px;object-fit:contain;background:rgba(139,92,246,.05);}
-.spin-ring{animation:spin-slow 8s linear infinite;}
-.grad-text{background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.tabbar{padding:6px 4px;background:rgba(6,6,16,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(139,92,246,.18);display:flex;justify-content:space-around;position:sticky;bottom:0;z-index:100;gap:2px;}
-.filter-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;}
-.fpill{padding:5px 12px;border-radius:100px;font-size:11px;cursor:pointer;border:1px solid;transition:all .3s;white-space:nowrap;flex-shrink:0;}
-`;
+function showDiscModal(post){const existing=$('disc-modal');if(existing)existing.remove();const modal=E('div',{class:'modal-bg',id:'disc-modal'});modal.innerHTML=`<div class="modal" style="text-align:left"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><span style="font-size:30px;filter:grayscale(1)">${post.avatar}</span><div><p style="font-family:'Cinzel',serif;color:#fca5a5;font-size:14px">${post.user}</p><p style="color:#6b7280;font-size:11px">${post.time}</p></div></div><span class="tag" style="background:${post.tc}20;border-color:${post.tc}40;color:${post.tc};margin-bottom:12px;display:inline-block">${post.tag}</span><p style="color:#e5e7eb;font-size:14px;line-height:1.8;margin-bottom:16px;font-style:italic">"${post.title}"</p><div style="display:flex;gap:20px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(185,28,28,.3)"><span style="color:#9ca3af;font-size:13px">🔔 ${post.replies}</span><span style="color:${post.liked?'#dc2626':'#9ca3af'};font-size:13px;cursor:pointer" id="modal-like">評分好意 ${post.likes}</span></div><div style="display:flex;gap:10px">${post.isMine?'<button class="btn btn-danger btn-sm" id="disc-del" style="flex:1">抹除建言</button>':''}<button class="btn btn-muted btn-sm" id="disc-close" style="flex:1">離開</button></div></div>`;document.body.appendChild(modal);$('disc-close').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove();};$('modal-like').onclick=()=>{updateData(d=>({...d,posts:d.posts.map(p=>p.id===post.id?{...p,likes:p.liked?p.likes-1:p.likes+1,liked:!p.liked}:p)}));modal.remove();};if(post.isMine){$('disc-del').onclick=()=>{if(!confirm('確定要抹除這則建言？'))return;updateData(d=>({...d,posts:d.posts.filter(p=>p.id!==post.id)}));modal.remove();showNotif('建言已消散');};}}
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+function renderDraw(){const d=state.data;const COLORS=[{c:'#b91c1c',n:'死血'},{c:'#9ca3af',n:'水銀'},{c:'#0891b2',n:'古神青'},{c:'#4b5563',n:'骨灰'},{c:'#000000',n:'深淵黑'}];const DRAW_TYPES=['卡爾符文','血跡塗鴉'];const wrap=E('div',{class:'fade-in'});wrap.innerHTML=`<h2 class="section-title">刻畫符文</h2><p class="section-sub">以血與水銀銘記古神的低語</p>`;const pct=Math.min((d.todayDrawPts/5)*100,100);wrap.innerHTML+=`<div style="margin-bottom:16px;padding:12px;background:rgba(0,0,0,.5);border:1px solid #7f1d1d;border-radius:6px"><p style="color:#9ca3af;font-family:'Cinzel',serif;font-size:12px;margin-bottom:6px">今日刻印：<span style="color:#fca5a5;font-weight:700">${d.todayDrawPts} / 5 迴響</span></p><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden"><div style="width:${pct}%;height:100%;background:linear-gradient(to right,#7f1d1d,#dc2626)"></div></div></div>`;const typeBox=E('div',{style:{marginBottom:'12px'}});typeBox.innerHTML=`<label style="display:block;color:#fca5a5;font-size:12px;margin-bottom:6px">銘記之物</label>`;const drawTypeSel=E('select',{id:'draw-type-sel'});DRAW_TYPES.forEach(t=>{const opt=E('option',{value:t},t);drawTypeSel.appendChild(opt);});typeBox.appendChild(drawTypeSel);wrap.appendChild(typeBox);const colorRow=E('div',{style:{display:'flex',gap:'8px',marginBottom:'12px',flexWrap:'wrap',alignItems:'center'}});COLORS.forEach(c=>{const sw=E('div',{class:'swatch'+(state.drawColor===c.c?' active':'')});sw.style.background=c.c;sw.title=c.n;sw.onclick=()=>{state.drawColor=c.c;state.drawMode='draw';document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));sw.classList.add('active');};colorRow.appendChild(sw);});const eraser=E('button');eraser.style.cssText=`padding:6px 12px;height:32px;border-radius:4px;background:rgba(156,163,175,.1);color:${state.drawMode==='erase'?'#fff':'#9ca3af'};border:${state.drawMode==='erase'?'1px solid #fca5a5':'1px solid #4b5563'};cursor:pointer;font-size:12px;font-family:'Noto Serif TC',serif;`;eraser.textContent='拭去血跡';eraser.onclick=()=>{state.drawMode=state.drawMode==='erase'?'draw':'erase';renderTabContent();};colorRow.appendChild(eraser);wrap.appendChild(colorRow);const sizeRow=E('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}});sizeRow.innerHTML=`<span style="color:#9ca3af;font-size:12px;white-space:nowrap">力度</span>`;const sizeSlider=E('input',{type:'range',min:'1',max:'40',value:state.drawSize,style:{flex:'1'}});const sizeLabel=E('span',{style:{color:'#fca5a5',font:'12px/1 Cinzel,serif',minWidth:'32px'}},state.drawSize+'px');sizeSlider.oninput=()=>{state.drawSize=parseInt(sizeSlider.value);sizeLabel.textContent=state.drawSize+'px';};sizeRow.appendChild(sizeSlider);sizeRow.appendChild(sizeLabel);wrap.appendChild(sizeRow);const canvas=E('canvas',{id:'draw-canvas',width:'800',height:'500'});wrap.appendChild(canvas);const btnRow=E('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'10px',margin:'16px 0'}});const clearBtn=E('button',{class:'btn btn-muted btn-sm'},'🗑️ 洗淨');const dlBtn=E('button',{class:'btn btn-muted btn-sm'},'💾 剝取');const submitBtn=E('button',{class:'btn btn-sm'},'🩸 獻祭');submitBtn.disabled=d.todayDrawPts>=5;if(d.todayDrawPts>=5)submitBtn.textContent='✓ 已滿足';clearBtn.onclick=()=>{const ctx=canvas.getContext('2d');ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,800,500);showNotif('血跡已洗淨');};dlBtn.onclick=()=>{const a=document.createElement('a');a.href=canvas.toDataURL();a.download='卡爾符文.png';a.click();showNotif('已剝取符文');};submitBtn.onclick=()=>{const pts=d.todayDrawPts<5?5:0;const typeSel=$('draw-type-sel');const subType=typeSel?typeSel.value:'卡爾符文';const img=canvas.toDataURL();updateData(prev=>({...prev,drawings:[{id:Date.now(),image:img,subType,time:new Date().toLocaleDateString('zh-TW'),timestamp:Date.now()},...prev.drawings],todayDrawPts:prev.todayDrawPts+pts,points:prev.points+pts,lastDrawDate:new Date().toDateString()}));showNotif(pts>0?'獻祭成功！+'+pts+' 迴響':'刻印已保留於夢境');const ctx=canvas.getContext('2d');ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,800,500);};btnRow.appendChild(clearBtn);btnRow.appendChild(dlBtn);btnRow.appendChild(submitBtn);wrap.appendChild(btnRow);if(d.drawings.length>0){const gallDiv=E('div');gallDiv.innerHTML=`<p class="sec-label">✦ 銘記之印（${d.drawings.length}）</p>`;const gallGrid=E('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'8px'}});d.drawings.slice(0,12).forEach(dw=>{const cell=E('div',{style:{position:'relative'}});const img=E('img',{src:dw.image,style:{width:'100%',aspectRatio:'1.6',objectFit:'cover',borderRadius:'4px',border:'1px solid #4b5563',display:'block',filter:'contrast(1.2) brightness(0.8)'}});let pressTimer;img.addEventListener('touchstart',()=>{pressTimer=setTimeout(()=>{if(confirm('要抹除這個不祥的印記嗎？')){updateData(d=>({...d,drawings:d.drawings.filter(x=>x.id!==dw.id)}));showNotif('印記已抹除');}},600);});img.addEventListener('touchend',()=>clearTimeout(pressTimer));img.addEventListener('touchmove',()=>clearTimeout(pressTimer));cell.appendChild(img);const hint=E('div',{style:{textAlign:'center',color:'#6b7280',fontSize:'10px',marginTop:'4px'}});hint.textContent='長按抹除';cell.appendChild(hint);gallGrid.appendChild(cell);});gallDiv.appendChild(gallGrid);wrap.appendChild(gallDiv);}setTimeout(()=>{const c=$('draw-canvas');if(!c)return;const ctx=c.getContext('2d');ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,800,500);let drawing=false;const getPos=e=>{const rect=c.getBoundingClientRect();const scX=c.width/rect.width,scY=c.height/rect.height;const clientX=e.clientX||e.touches?.[0]?.clientX;const clientY=e.clientY||e.touches?.[0]?.clientY;return{x:(clientX-rect.left)*scX,y:(clientY-rect.top)*scY};};const start=e=>{e.preventDefault();const{x,y}=getPos(e);ctx.beginPath();ctx.moveTo(x,y);drawing=true;};const move=e=>{if(!drawing)return;e.preventDefault();const{x,y}=getPos(e);ctx.lineWidth=state.drawSize;ctx.lineCap='round';ctx.strokeStyle=state.drawMode==='erase'?'#0a0a0f':state.drawColor;ctx.shadowBlur=state.drawMode==='erase'?0:5;ctx.shadowColor=state.drawMode==='erase'?'transparent':state.drawColor;ctx.lineTo(x,y);ctx.stroke();};const end=()=>drawing=false;c.addEventListener('mousedown',start);c.addEventListener('mousemove',move);c.addEventListener('mouseup',end);c.addEventListener('mouseleave',end);c.addEventListener('touchstart',start,{passive:false});c.addEventListener('touchmove',move,{passive:false});c.addEventListener('touchend',end);},50);return wrap;}
+
+function getAutoTitles(data){const n=data.uploads.filter(u=>u.type==='forbidden'&&u.verifiedSuccess).length;const out=[];if(n>=10)out.push({id:'auto_1',name:'墓碑點亮者',icon:'🏮',desc:'成功探索禁忌10次',type:'title'});if(n>=50)out.push({id:'auto_2',name:'血源探尋者',icon:'🩸',desc:'成功探索禁忌50次',type:'title'});if(n>=100)out.push({id:'auto_3',name:'看見真相之人',icon:'👁️',desc:'成功探索禁忌100次',type:'title'});return out;}
+
+function renderProfile(){const d=state.data;const autoTitles=getAutoTitles(d);const allItems=SHOP.concat(autoTitles);const ownedTitles=SHOP.filter(i=>d.purchased.includes(i.id)&&i.type==='title').concat(autoTitles);const cur=d.currentTitle?allItems.find(s=>s.id===d.currentTitle):null;const level=Math.floor(d.points/250)+1;const displayName=d.customName||(state.role==='admin'?'狩獵長':'外來者');const magicMap={};d.purchased.forEach(id=>{const it=SHOP.find(i=>i.id===id&&i.type==='arcane');if(it)magicMap[it.name]=(magicMap[it.name]||0)+1;});const otherOwned=SHOP.filter(i=>d.purchased.includes(i.id)&&i.type!=='title'&&i.type!=='arcane');const wrap=E('div',{class:'fade-in'});wrap.innerHTML=`<h2 class="section-title" style="margin-bottom:20px">獵人狀態</h2><div class="card" style="background:rgba(0,0,0,.6);margin-bottom:16px;text-align:center;padding:24px"><div style="font-size:48px;margin-bottom:12px;filter:grayscale(1)">${state.role==='admin'?'🪚':'🎩'}</div><h3 class="grad-text" style="font-family:'Cinzel Decorative',serif;font-size:20px;margin-bottom:6px">${displayName}</h3><p style="color:#9ca3af;font-size:12px;margin-bottom:20px">${cur?cur.icon+' '+cur.name:'遊蕩的獵人'}</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div><p style="color:#fca5a5;font-size:10px;font-family:'Cinzel',serif;margin-bottom:4px">階級</p><p style="font-size:16px;font-weight:700">Lv.${level}</p></div><div><p style="color:#fca5a5;font-size:10px;font-family:'Cinzel',serif;margin-bottom:4px">血之迴響</p><p style="font-size:16px;font-weight:700">${d.points}</p></div><div><p style="color:#fca5a5;font-size:10px;font-family:'Cinzel',serif;margin-bottom:4px">靈視稱號</p><p style="font-size:16px;font-weight:700">${ownedTitles.length}</p></div></div></div>`;const nameCard=E('div',{class:'card',style:{marginBottom:'12px'}});nameCard.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><p class="sec-label" style="margin-bottom:0;border:none">✦ 墓碑銘文</p></div><p style="font-size:14px;color:#e5e7eb">${displayName}</p>`;const nameBtn=E('button',{style:{background:'rgba(185,28,28,.1)',border:'1px solid #7f1d1d',color:'#fca5a5',padding:'6px 12px',borderRadius:'4px',fontSize:'11px',cursor:'pointer'}},'重刻');nameBtn.onclick=()=>showNameChangeModal();nameCard.querySelector('div').appendChild(nameBtn);wrap.appendChild(nameCard);const titleCard=E('div',{class:'card',style:{marginBottom:'12px'}});titleCard.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><p class="sec-label" style="margin-bottom:0;border:none">✦ 當前身分</p></div>${cur?`<div style="display:flex;gap:12px;align-items:center;padding:12px;background:rgba(0,0,0,.5);border:1px solid #7f1d1d;border-radius:6px"><span style="font-size:24px;filter:drop-shadow(0 0 5px rgba(255,0,0,0.3))">${cur.icon}</span><div><p style="color:#fca5a5;font-size:13px;font-weight:700;margin-bottom:2px">${cur.name}</p><p style="color:#9ca3af;font-size:10px">${cur.desc}</p></div></div>`:'<p style="font-size:12px;color:#6b7280;padding:8px 0">未受任何教派指引</p>'}`;const switchBtn=E('button',{style:{background:'rgba(185,28,28,.1)',border:'1px solid #7f1d1d',color:'#fca5a5',padding:'6px 12px',borderRadius:'4px',fontSize:'11px',cursor:'pointer'}},'變更');switchBtn.onclick=()=>showTitleModal(ownedTitles,d.currentTitle);titleCard.querySelector('div').appendChild(switchBtn);wrap.appendChild(titleCard);if(Object.keys(magicMap).length>0){const mc=E('div',{class:'card',style:{marginBottom:'12px'}});mc.innerHTML=`<p class="sec-label">✦ 掌握之祕法</p><div style="display:flex;gap:8px;flex-wrap:wrap">${Object.entries(magicMap).map(([n,c])=>`<span class="tag" style="background:rgba(156,163,175,.1);border-color:#4b5563;color:#d1d5db;padding:6px 10px">${n}${c>1?' ×'+c:''}</span>`).join('')}</div>`;wrap.appendChild(mc);}if(otherOwned.length>0){const oc=E('div',{class:'card',style:{marginBottom:'12px'}});oc.innerHTML=`<p class="sec-label">✦ 獵人武裝</p><div style="display:flex;gap:8px;flex-wrap:wrap">${otherOwned.map(i=>`<span class="tag" style="background:rgba(185,28,28,.1);border-color:#7f1d1d;color:#fca5a5;padding:6px 10px">${i.icon} ${i.name}</span>`).join('')}</div>`;wrap.appendChild(oc);}const ac=E('div',{class:'card',style:{marginBottom:'16px',fontSize:'12px'}});ac.innerHTML=`<p class="sec-label">✦ 契約詳細</p>${[['契約',state.role==='admin'?'狩獵長':'外來者'],['階層',state.role==='admin'?'上位者':'普通獵人'],['甦醒日',d.joinDate||'—'],['入夢次數',d.loginCount],['獵殺總計',d.uploads.length],['符文刻印',d.drawings.length]].map(([l,v])=>`<p style="color:#9ca3af;margin-bottom:8px;display:flex;justify-content:space-between"><span>${l}</span><span style="color:#d1d5db">${v}</span></p>`).join('')}`;wrap.appendChild(ac);const logoutBtn=E('button',{class:'btn btn-muted',style:{marginBottom:'10px'}},'🚪 甦醒 (登出)');logoutBtn.onclick=()=>{localStorage.removeItem('bloodborne_session');state.role=null;state.data=null;state.stage='login';render();};const resetBtn=E('button',{class:'btn btn-danger'},'⚠️ 斬斷循環 (重置數據)');resetBtn.onclick=()=>{if(!confirm('這將抹除你所有的血與記憶，確定要斬斷循環嗎？'))return;updateData(Object.assign(defaultData(),{joinDate:new Date().toLocaleDateString('zh-TW'),lastDrawDate:new Date().toDateString()}));showNotif('記憶已歸零');};wrap.appendChild(logoutBtn);wrap.appendChild(resetBtn);return wrap;}
+
+function showNameChangeModal(){const existing=$('name-modal');if(existing)existing.remove();const modal=E('div',{class:'modal-bg',id:'name-modal'});modal.innerHTML=`<div class="modal"><h3 style="font-size:16px;color:#fca5a5;margin-bottom:16px">重刻墓碑銘文</h3><input id="new-name-inp" type="text" placeholder="輸入新名稱（最多12字）" maxlength="12" style="margin-bottom:16px"><div style="display:flex;gap:10px"><button class="btn btn-sm" id="name-ok" style="flex:1">確定</button><button class="btn btn-muted btn-sm" id="name-cancel" style="flex:1">放棄</button></div></div>`;document.body.appendChild(modal);$('name-cancel').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove();};$('name-ok').onclick=()=>{const val=$('new-name-inp').value.trim();if(!val){showNotif('名稱不可空白');return;}updateData(d=>({...d,customName:val}));modal.remove();showNotif('銘文已重刻');};}
+
+function showTitleModal(titles,currentId){const existing=$('title-modal');if(existing)existing.remove();const modal=E('div',{class:'modal-bg',id:'title-modal'});const list=titles.map(t=>`<div onclick="selectTitle(${typeof t.id==='number'?t.id:'"'+t.id+'"'})" style="padding:12px;background:${currentId===t.id?'rgba(185,28,28,.15)':'rgba(0,0,0,.5)'};border:1px solid ${currentId===t.id?'#dc2626':'#4b5563'};border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:10px;transition:all 0.3s"><span style="font-size:24px;filter:drop-shadow(0 0 5px rgba(255,0,0,0.3))">${t.icon}</span><div><p style="color:#fca5a5;font-size:13px;font-weight:700;margin-bottom:2px">${t.name}</p><p style="color:#9ca3af;font-size:10px">${t.desc}</p></div>${currentId===t.id?'<span style="color:#dc2626;margin-left:auto;font-size:16px;font-weight:bold">✓</span>':''}</div>`).join('');modal.innerHTML=`<div class="modal" style="text-align:left;max-height:80vh;overflow-y:auto"><h3 style="font-size:16px;text-align:center;margin-bottom:16px;color:#fca5a5">選擇教派或身分</h3>${titles.length===0?'<p style="text-align:center;color:#6b7280;font-size:12px;padding:20px 0">你尚未獲得任何啟蒙稱號</p>':list}<div style="display:flex;gap:10px;margin-top:12px"><button class="btn btn-muted btn-sm" onclick="clearTitle()" style="flex:1">隱匿身分</button><button class="btn btn-muted btn-sm" id="title-cancel" style="flex:1">關閉</button></div></div>`;document.body.appendChild(modal);$('title-cancel').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove();};}
+window.selectTitle=function(id){updateData(d=>({...d,currentTitle:id}));const m=$('title-modal');if(m)m.remove();showNotif('身分已切換');};
+window.clearTitle=function(){updateData(d=>({...d,currentTitle:null}));const m=$('title-modal');if(m)m.remove();showNotif('已隱匿身分');};
+
+document.body.innerHTML=`<div id="bg" style="position:fixed;inset:0;pointer-events:none;overflow:hidden"></div><div id="notif" class="notif" style="display:none"></div><div id="app-content" style="height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:0 auto"></div>`;
+initBg();
+render();
+</script>
 </body>
 </html>
